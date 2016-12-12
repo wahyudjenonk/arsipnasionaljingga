@@ -1,0 +1,79 @@
+<div  class="sidebar fixed" id="sidebar">
+	<ul class="nav nav-list">
+		<li>
+			<a href="javascript:void(0);" onclick="loadUrl('{$host}beranda');$('#judul_kecil').html('Dashboard App')">
+				<i class="icon-bar-chart"></i>
+				<span class="menu-text">Dashboard</span>
+			</a>
+		</li>
+		
+		<li>
+			<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Grid/management_file');$('#judul_kecil').html('Management File')">
+				<i class="icon-briefcase"></i>
+				<span class="menu-text">Management File</span>
+			</a>
+		</li>
+		
+		<li>
+			<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Grid/reservation');$('#judul_kecil').html('Reservation List')">
+				<i class="icon-desktop"></i>
+				<span class="menu-text">Access File</span>
+			</a>
+		</li>		
+		
+		<li>
+			<a href="javascript:void(0);"  class="dropdown-toggle" >
+				<i class="icon-book"></i>
+				<span class="menu-text">Report</span>
+				<b class="arrow icon-angle-down"></b>
+			</a>
+			<ul class="submenu">
+				<li>
+					<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Report/inv_paid');$('#judul_kecil').html('Report Invoice Paid')">
+						<i class="icon-double-angle-right"></i>
+						<span class="menu-text"> Report File </span>
+					</a>
+				</li>
+				<li>
+					<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Report/inv_unpaid');$('#judul_kecil').html('Report Invoice UnPaid')">
+						<i class="icon-double-angle-right"></i>
+						<span class="menu-text"> Report Log </span>
+					</a>
+				</li>
+			</ul>
+		</li>
+				
+		<li>
+			<a href="javascript:void(0);"  class="dropdown-toggle" >
+				<i class="icon-group"></i>
+				<span class="menu-text">User Management</span>
+				<b class="arrow icon-angle-down"></b>
+			</a>
+			<ul class="submenu">
+				<li>
+					<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Grid/registration');$('#judul_kecil').html('Registration List')">
+						<i class="icon-double-angle-right"></i>
+						<span class="menu-text">Registration</span>
+					</a>
+				</li>
+				<li>
+					<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Grid/member');$('#judul_kecil').html('Member List')">
+						<i class="icon-double-angle-right"></i>
+						<span class="menu-text">Member</span>
+					</a>
+				</li>
+				<!--li>
+					<a href="javascript:void(0);" onclick="">
+						<i class="icon-double-angle-right"></i>
+						<span class="menu-text">Member Access Control</span>
+					</a>
+				</li-->
+			</ul>
+		</li>
+		
+	</ul><!--/.nav-list-->
+
+	<div class="sidebar-collapse" id="sidebar-collapse">
+		<i class="icon-double-angle-left"></i>
+	</div>
+</div>

@@ -1,0 +1,8 @@
+{assign var=buttonnya value='true'}
+{if $mod eq 'management_file'}
+	{if $auth.cl_user_group_id eq '1'}
+		{assign var=buttonnya value='false'}
+	{/if}
+{/if}
+
+{include file="backend/template/grid.html" main={$mod} button={$buttonnya} table={$table|default:''} filter_core="true"}
