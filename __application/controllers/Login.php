@@ -11,8 +11,6 @@ class Login extends JINGGA_Controller {
 		$user = $this->db->escape_str($this->input->post('user'));
 		$pass = $this->db->escape_str($this->input->post('pwd'));
 		$error=false;
-		//echo $user;exit;
-		//echo $this->encrypt->encode($pass);exit;
 		if($user && $pass){
 			$cek_user = $this->modelsx->getdata('data_login', 'row_array', $user);
 			//print_r($cek_user);exit;
@@ -29,8 +27,33 @@ class Login extends JINGGA_Controller {
 					$this->session->set_flashdata('error', 'USER Sudah Tidak Aktif Lagi');
 				}
 			}else{
-				$error=true;
-				$this->session->set_flashdata('error', 'User Tidak Terdaftar');
+				//CEK LDAP
+				$cek_ldap=$this->lib->get_ldap_user("login",$user,$pass);
+				//echo "<pre>";print_r($cek_ldap);exit;
+				if($cek_ldap['msg']==1){
+					$get_group=$this->modelsx->getdata('group_ldap', 'row_array', $user);
+					//echo "<pre>"; print_r($get_group);exit;
+					if(isset($get_group["cl_group_user_id"])){
+						$data=array();
+						$data["nama_user"]=$cek_ldap["data"][0]["samaccountname"];
+						$data["nama_lengkap"]=$cek_ldap["data"][0]["samaccountname"];
+						$data["email"]=$cek_ldap["data"][0]["userprincipalname"];
+						$data["cl_user_group_id"]=$get_group["cl_group_user_id"];
+						//$data["nama_unit"]=$cek_ldap["data"][0]["memberof"];
+						$data["nama_unit"]='LDAP Unit';
+						$this->session->set_userdata('44mpp3R4', base64_encode(serialize($data)));
+					}else{
+						$error=true;
+						$this->session->set_flashdata('error', 'User LDAP Belum Terdaftar Dalam Group');
+					}
+					
+				}elseif($cek_ldap['msg']==2){
+					$error=true;
+					$this->session->set_flashdata('error', 'LDAP Server Tidak Terkoneksi');
+				}else{
+					$error=true;
+					$this->session->set_flashdata('error', 'User Tidak Terdaftar');
+				}
 			}
 		}else{
 			$error=true;

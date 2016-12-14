@@ -20,7 +20,12 @@ class Modelsx extends CI_Model{
 					WHERE A.nama_user = '".$p1."'
 				";
 			break;
-			
+			case "group_ldap":
+				$sql="SELECT A.*,B.group_user 
+					  FROM tbl_ldap_group A
+					  LEFT JOIN cl_group_user B ON A.cl_group_user_id=B.id
+					  WHERE user_ldap='".$p1.$this->config->item('ldap_prefix_login')."'";
+			break;
 			case "tbl_upload_file":
 				if($this->auth['cl_user_group_id'] != "1"){
 					$where .= " AND A.cl_unit_kerja_id = '".$this->auth['cl_unit_kerja_id']."' ";

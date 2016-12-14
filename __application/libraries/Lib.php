@@ -404,7 +404,64 @@ class Lib {
 		$string = str_replace(' ', '', $string); // Replaces all spaces with hyphens.
 		return preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
 	}	
-	//End String Sanitizer
 	
-	
+	function get_ldap_user($mod="",$user="",$pwd=""){
+		$ci =& get_instance();
+		//echo $user.$pwd;
+		$res=array();
+		$res["msg"]=1;
+		$ldapconn = ldap_connect($ci->config->item("ldap_host"),$ci->config->item("ldap_port"));
+		ldap_set_option($ldapconn, LDAP_OPT_REFERRALS, 0);
+		ldap_set_option($ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
+		if($ldapconn) {
+			if($mod=='data_ldap'){
+				$ldapbind = @ldap_bind($ldapconn, $ci->config->item("ldap_user"), $ci->config->item("ldap_pwd"));
+			}else{
+				$ldapbind = @ldap_bind($ldapconn, $user.$ci->config->item("ldap_prefix_login"), $pwd);
+			}
+			if ($ldapbind) {
+				$ldap_tree = "DC=goyz,DC=com";
+				$ldap_fields=array("samaccountname","name","primarygroupid","displayname","distinguishedname","cn","description","memberof","userprincipalname");           
+				if($mod=='data_ldap'){
+					$result=@ldap_search($ldapconn,$ldap_tree, "(objectCategory=person)",$ldap_fields);
+				}else if($mod=='login'){
+					
+                    $result=ldap_search($ldapconn,$ldap_tree,"(&(objectCategory=person)(samaccountname=$user))", $ldap_fields);
+				}
+				$data=$this->konvert_array($ldapconn,$result);
+				$res["data"]=$data;//GAGAL KONEK
+			} else {
+				//echo "LDAP bind failed...";
+				$res["msg"]=3;//GAGAL BIND
+			}
+		}else{
+			$res["msg"]=2;//GAGAL KONEK
+		}
+		ldap_close($ldapconn);
+		return $res;
+	}
+	function konvert_array($conn,$result){
+		$connection = $conn;
+		$resultArray = array();
+		if ($result){
+			$entry = ldap_first_entry($connection, $result);
+			while ($entry){
+				$row = array();
+				$attr = ldap_first_attribute($connection, $entry);
+				while ($attr){
+					$val = ldap_get_values_len($connection, $entry, $attr);
+					if (array_key_exists('count', $val) AND $val['count'] == 1){
+						$row[strtolower($attr)] = $val[0];
+					}
+					else{
+						$row[strtolower($attr)] = $val;
+					}
+					$attr = ldap_next_attribute($connection, $entry);
+				}
+				$resultArray[] = $row;
+				$entry = ldap_next_entry($connection, $entry);
+			}
+		}
+		return $resultArray;
+	}
 }

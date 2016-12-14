@@ -51,3 +51,9 @@ $config['compress_output'] = FALSE;
 $config['time_reference'] = 'local';
 $config['rewrite_short_tags'] = FALSE;
 $config['proxy_ips'] = '';
+
+$config['ldap_host'] 	= '192.168.100.129';
+$config['ldap_port']   	= 389;
+$config['ldap_user']   	= 'goyz@goyz.com'; 
+$config['ldap_pwd']    	= 'Plokiju123';
+$config['ldap_prefix_login']      = '@goyz.com';
