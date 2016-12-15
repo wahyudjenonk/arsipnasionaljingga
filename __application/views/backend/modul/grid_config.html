@@ -1,6 +1,6 @@
 {assign var=buttonnya value='true'}
 {if $mod eq 'management_file'}
-	{if $auth.cl_user_group_id eq '1'}
+	{if $auth.cl_user_group_id neq '3'}
 		{assign var=buttonnya value='false'}
 	{/if}
 {/if}

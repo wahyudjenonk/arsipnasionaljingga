@@ -15,7 +15,7 @@ $route['backoffice-form/(:any)'] = 'controllerx/get_form/$1';
 $route['backoffice-Data/(:any)'] = 'controllerx/getdata/$1';
 $route['backoffice-Report/(:any)'] = 'controllerx/get_report/$1';
 $route['backoffice-simpan/(:any)'] = 'controllerx/simpandata/$1';
-$route['backoffice-getmodul/(:any)'] = 'controllerx/modul/$1';
+$route['backoffice-getmodul/(:any)/(:any)'] = 'controllerx/modul/$1/$2';
 
 $route['beranda'] = 'controllerx/modul/beranda/main';
 

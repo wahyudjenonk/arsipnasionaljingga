@@ -252,18 +252,25 @@ function genGrid(modnya, divnya, lebarnya, tingginya, par1){
 			row_number=true;
 			urlglobal = host+'backoffice-Data/'+urlnya;
 			frozen[modnya] = [
-				{field:'no_dokumen',title:'No. Dokumen',width:300, halign:'center',align:'left'},
-			];
-			kolom[modnya] = [
-				{field:'unit_kerja',title:'Unit Kerja',width:200, halign:'center',align:'left', hidden:(grp == 1 ? false : true)},				
-				{field:'tipe_dokumen',title:'Tipe Dokumen',width:200, halign:'center',align:'left'},				
-				{field:'perihal',title:'Perihal',width:200, halign:'center',align:'left'},				
-				{field:'pengirim',title:'Pengirim',width:200, halign:'center',align:'left'},				
-				{field:'nama_file',title:'File Arsip',width:150, halign:'center',align:'center',
+				{field:'nama_file',title:'File Arsip',width:120, halign:'center',align:'center',
 					formatter:function(value,rowData,rowIndex){
 						return '<button href="javascript:void(0)" onClick="kumpulAction(\'lihatfile\',\''+rowData.nama_file+'\',\''+rowData.id+'\')" class="easyui-linkbutton" data-options="iconCls:\'icon-preview\'">Lihat File</button>';
 					}
 				},
+				{field:'id',title:'Sharing',width:130, halign:'center',align:'center',
+					formatter:function(value,rowData,rowIndex){
+						return '<button href="javascript:void(0)" onClick="kumpulAction(\'sharing_file\',\''+rowData.id+'\')" class="easyui-linkbutton" data-options="iconCls:\'icon-preview\'">Sharing File</button>';
+					}
+				},
+				{field:'no_dokumen',title:'No. Dokumen',width:300, halign:'center',align:'left'},
+			];
+			kolom[modnya] = [
+				
+				{field:'unit_kerja',title:'Unit Kerja',width:200, halign:'center',align:'left', hidden:(grp == 1 ? false : true)},				
+				{field:'tipe_dokumen',title:'Tipe Dokumen',width:200, halign:'center',align:'left'},				
+				{field:'perihal',title:'Perihal',width:200, halign:'center',align:'left'},				
+				{field:'pengirim',title:'Pengirim',width:200, halign:'center',align:'left'},				
+				
 				{field:'tanggal_upload',title:'Tanggal Upload',width:150, halign:'center',align:'center'},
 				{field:'create_by',title:'Petugas Input',width:150, halign:'center',align:'center'}
 			];
@@ -480,7 +487,7 @@ function kumpulAction(type, p1, p2, p3, p4, p5){
 	var param = {};
 	switch(type){
 		case "lihatfile":
-			$.post(host+'backoffice-getmodul/preview_file', { 'nama_file':p1, 'idx':p2 }, function(rsp){
+			$.post(host+'backoffice-getmodul/preview_file/'+p2, { 'nama_file':p1, 'idx':p2 }, function(rsp){
 				windowForm(rsp, 'Lihat File Dokumen', 1000, 600);
 			});
 		break;
@@ -494,6 +501,11 @@ function kumpulAction(type, p1, p2, p3, p4, p5){
 				}
 				$('#grid_reservasi').datagrid('reload');	
 			} );
+		break;
+		case "sharing_file":
+			$.post(host+'backoffice-getmodul/management_file/sharing_file', { id:p1 }, function(rsp){
+				windowForm(rsp, 'Lihat File Dokumen', 700, 500);
+			});
 		break;
 	}
 }	

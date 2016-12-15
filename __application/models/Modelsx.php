@@ -26,6 +26,12 @@ class Modelsx extends CI_Model{
 					  LEFT JOIN cl_group_user B ON A.cl_group_user_id=B.id
 					  WHERE user_ldap='".$p1.$this->config->item('ldap_prefix_login')."'";
 			break;
+			case "unit_sharing":
+				$sql="SELECT * FROM cl_unit_kerja
+						WHERE id NOT IN(
+							SELECT cl_unit_id FROM tbl_sharing_file WHERE tbl_upload_file_id=".$p2."
+						) AND id <> ".$p1;
+			break;
 			case "tbl_upload_file":
 				if($this->auth['cl_user_group_id'] != "1"){
 					$where .= " AND A.cl_unit_kerja_id = '".$this->auth['cl_unit_kerja_id']."' ";
@@ -80,6 +86,23 @@ class Modelsx extends CI_Model{
 		}
 		
 		switch($table){
+			case "sharing":
+				//print_r($data);exit;
+				$pilih=$data['pilihan'];
+				unset($data['pilihan']);
+				$data['create_date'] = date('Y-m-d H:i:s');
+				$data['create_by'] = $this->auth['nama_user'];
+				foreach($pilih as $x){
+					$data['cl_unit_id']=$x;
+					$this->db->insert('tbl_sharing_file',$data);
+				}
+				if($this->db->trans_status() == false){
+					$this->db->trans_rollback();
+					return 'gagal';
+				}else{
+					 return $this->db->trans_commit();
+				}
+			break;
 			case "tbl_upload_file":				
 				$target_path = "__repository/".$this->auth['cl_unit_kerja_id']."/";
 				if(!is_dir($target_path)) {

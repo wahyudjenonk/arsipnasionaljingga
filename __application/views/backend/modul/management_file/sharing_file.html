@@ -1,0 +1,126 @@
+
+<div class="row-fluid">
+	<div class="span12">
+		<div style="padding:10px" class="">
+			<table style="width:100%" class="table table-hover">
+				<tbody>
+					<tr>
+						<td colspan="6" style="text-align:center;font-weight:bold;">File Upload</td>
+					</tr>
+					<tr>
+						<td>Id Dokumen</td>
+						<td>:</td>
+						<td>{$data.id_dokumen|default:'-'}</td>
+						
+						<td>Tipe Dokumen</td>
+						<td>:</td>
+						<td>{$data.tipe_dokumen|default:'-'}</td>
+					</tr>
+					<tr>
+						<td>No. Dokumen</td>
+						<td>:</td>
+						<td>{$data.no_dokumen|default:'-'}</td>
+						
+						<td>Perihal</td>
+						<td>:</td>
+						<td>{$data.perihal|default:'-'}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	<div class="row-fluid">
+		<form id="FormShare_{$acak}" url="{$host}backoffice-simpan/sharing" enctype="multipart/form-data" method="post">
+		<input type="hidden" name="tbl_upload_file_id" value="{$data.id}">
+		<input type="hidden" name="editstatus" value="add">
+		<div class="span12" style="width:97%">
+			<div class="control-group">
+				<label class="control-label" style="width:450px;">Daftar Unit Kerja Yang Akan Menerima File</label>
+				{if !empty($unit)}
+				{foreach from=$unit item=i name=x}
+				<div class="controls">
+					<label>
+						<input name="pilihan[]" type="checkbox" value="{$i.id}" class="validasi cek" />
+						<span class="lbl" style="margin-left:6px;">{$i.nama_unit|default:'-'}</span>
+					</label>
+				</div>
+				{/foreach}
+				{else}
+				<div class="controls">
+					<label style="width:450px;font-weight:bold;">
+						SUDAH DISHARE KE SEMUA UNIT KERJA
+					</label>
+				</div>
+				{/if}
+			</div>
+		</div>
+		<div class="span12" style="width:97%">
+			<table class="table table-hover">
+				<tbody>
+					<tr>
+						<td>Tgl. Mulai</td>
+						<td>:</td>
+						<td><input type="text" id="tgl_mulai_{$acak}" name="tgl_mulai" value="" style="width:80%" class="validasi"></td>
+						
+						<td>Tgl. Akhir</td>
+						<td>:</td>
+						<td><input type="text" id="tgl_akhir_{$acak}" name="tgl_akhir" value="" style="width:80%" class="validasi"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		</form>
+	</div>
+		<div class="form-actions">
+			<center>
+			<a class="btn btn-info" href='javascript:void(0);' id='share_{$acak}'>
+				Share
+			</a>
+			&nbsp; &nbsp; &nbsp;
+			<a class="btn btn-danger" href='javascript:void(0);' id='cancel_{$acak}'>
+				Kembali
+			</a>
+			</center>
+		</div>
+	</div>
+</div>
+<script>
+
+	$('#tgl_mulai_{$acak}').datebox({
+		formatter : formatDate,
+        parser : parserDate,
+		value : today,
+		required:true
+	});
+	$('#tgl_akhir_{$acak}').datebox({
+		formatter : formatDate,
+        parser : parserDate,
+		value : today,
+		required:true
+	});
+	$(".validasi").validatebox({ required:true }); 		
+	
+	$('#cancel_{$acak}').on('click', function(){
+		closeWindow();
+	});
+	$('#share_{$acak}').on('click', function(){
+		if($(".cek").is(":checked")==false){
+			$.messager.alert('PGN Solution', "Pilih Salah Satu Unit Kerja", 'warning');
+		}else{
+			validasi = $('#FormShare_{$acak}').form('validate');
+			submit_form('FormShare_{$acak}',function(r){
+				if(r == 1){
+					$.messager.alert('PGN Solution', "Sharing File Berhasil", 'info');
+					$('.info-empty').remove();
+					closeWindow();
+				}else{
+					console.log(r);
+					$.messager.alert('PGN Solution', "Failed Save", 'error');
+				}
+				
+				
+			});
+		}
+		return false;
+	});
+	
+</script>

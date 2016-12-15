@@ -420,13 +420,13 @@ class Lib {
 				$ldapbind = @ldap_bind($ldapconn, $user.$ci->config->item("ldap_prefix_login"), $pwd);
 			}
 			if ($ldapbind) {
-				$ldap_tree = "DC=goyz,DC=com";
-				$ldap_fields=array("samaccountname","name","primarygroupid","displayname","distinguishedname","cn","description","memberof","userprincipalname");           
+				$ldap_tree = "DC=scisi,DC=com";
+				//$ldap_fields=array("samaccountname","name","primarygroupid","displayname","distinguishedname","cn","description","memberof","userprincipalname");           
 				if($mod=='data_ldap'){
 					$result=@ldap_search($ldapconn,$ldap_tree, "(objectCategory=person)",$ldap_fields);
 				}else if($mod=='login'){
 					
-                    $result=ldap_search($ldapconn,$ldap_tree,"(&(objectCategory=person)(samaccountname=$user))", $ldap_fields);
+                    $result=ldap_search($ldapconn,$ldap_tree,"(&(objectCategory=person)(samaccountname=$user))");
 				}
 				$data=$this->konvert_array($ldapconn,$result);
 				$res["data"]=$data;//GAGAL KONEK
