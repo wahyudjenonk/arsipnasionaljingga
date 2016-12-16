@@ -12,7 +12,7 @@ class Controllerx extends JINGGA_Controller {
 		$this->nsmarty->assign('acak', md5(date('H:i:s')) );
 		$this->temp="backend/";
 		$this->load->model('modelsx');
-		$this->load->library(array('encrypt','lib'));
+		$this->load->library(array('encrypt','lib','encrypt'));
 	}
 	
 	function index(){
@@ -87,6 +87,42 @@ class Controllerx extends JINGGA_Controller {
 				}
 				$this->nsmarty->assign("tipe_dokumen", $this->lib->fillcombo('tipe_dokumen', 'return', ($sts == 'edit' ? $data['tipe_dokumen'] : "") ) );
 			break;
+			case "mapping":
+				$temp='backend/modul/user_management/mapping-form.html';
+				if($sts=='edit'){
+					$data = $this->db->get_where('tbl_ldap_group', array('id'=>$this->input->post('id')) )->row_array();
+					$this->nsmarty->assign('data',$data);
+				}
+				$unit=$this->modelsx->getdata('cl_unit_kerja','result_array');
+				$group=$this->modelsx->getdata('cl_group_user','result_array');
+				$this->nsmarty->assign('group',$group);
+				$this->nsmarty->assign('unit',$unit);
+			break;
+			case "user_mng":
+				$temp='backend/modul/user_management/user_mng-form.html';
+				if($sts=='edit'){
+					$data = $this->db->get_where('tbl_user', array('id'=>$this->input->post('id')) )->row_array();
+					$this->nsmarty->assign('data',$data);
+				}
+				$unit=$this->modelsx->getdata('cl_unit_kerja','result_array');
+				$group=$this->modelsx->getdata('cl_group_user','result_array');
+				$this->nsmarty->assign('group',$group);
+				$this->nsmarty->assign('unit',$unit);
+			break;
+			case "group":
+				$temp='backend/modul/user_management/group-form.html';
+				if($sts=='edit'){
+					$data = $this->db->get_where('cl_group_user', array('id'=>$this->input->post('id')) )->row_array();
+					$this->nsmarty->assign('data',$data);
+				}
+			break;
+			case "unit":
+				$temp='backend/modul/user_management/unit-form.html';
+				if($sts=='edit'){
+					$data = $this->db->get_where('cl_unit_kerja', array('id'=>$this->input->post('id')) )->row_array();
+					$this->nsmarty->assign('data',$data);
+				}
+			break;
 		}
 		$this->nsmarty->assign('mod',$mod);
 		$this->nsmarty->assign('temp',$temp);
@@ -140,6 +176,25 @@ class Controllerx extends JINGGA_Controller {
 			case "management_file":
 				$opt .="<option value='A.room_type'>Nama Arsip</option>";
 				$opt .="<option value='A.description'>No. Arsip</option>";
+			break;
+			case "mapping":
+				$opt .="<option value='A.user_ldap'>User</option>";
+				$opt .="<option value='B.group_user'>Group User</option>";
+				$opt .="<option value='C.nama_unit'>Nama Unit</option>";
+			break;
+			case "user_mng":
+				$opt .="<option value='A.nama_user'>User</option>";
+				$opt .="<option value='B.group_user'>Group User</option>";
+				$opt .="<option value='C.nama_unit'>Nama Unit</option>";
+			break;
+			case "unit":
+				$opt .="<option value='A.nama_unit'>Unit Kerja</option>";
+			break;
+			case "group":
+				$opt .="<option value='A.group_user'>Group User</option>";
+			break;
+			case "log":
+				$opt .="<option value='aktivitas'>Aktivitas</option>";
 			break;
 		}
 		return $opt;
@@ -221,30 +276,27 @@ class Controllerx extends JINGGA_Controller {
 		//echo json_encode($tgl);exit;
 		//print_r($tgl);exit;
 		switch($mod){
-			case "penjualan_inde":
-				$tgl_akhir=date('Y-m-d');
-				$tgl_milai = date('Y-m-d', strtotime($tgl_akhir .' -7 day'));
-				$period = new DatePeriod(
-					 new DateTime($tgl_milai),
-					 new DateInterval('P1D'),
-					 new DateTime($tgl_akhir)
-				);
-				$data=$this->modelsx->getdata('d_penjualan_inde','result_array');
-				$idx=0;
-				$x['name']='Total ( * 1000 )';
+			case "jml_file":
+				$x['name']='File Upload';
+				$x['colorByPoint']='true';
 				$x['data']=array();
-				foreach($period as $time) {
-					$y[] = $time->format("Y-m-d");
-					$x['data'][$idx]=0;
-					foreach($data as $v=>$z){
-						if($time->format("Y-m-d")==$z['tgl'])$x['data'][$idx]=(float)($z['total']/1000);
-					}
+				$data=$this->modelsx->getdata('chart_file','result_array');
+				$idx=0;
+				foreach($data as $v=>$z){
+					$x['data'][$idx]=array('name'=>$z['nama_unit'],'y'=>(float)$z['total']);
 					$idx++;
 				}
 				$chart['x']=array($x);
-				$chart['y']=$y;
-				//echo "<pre>";
-				//print_r($chart);exit;
+			break;
+			case "space":
+				$data=$this->lib->get_space_hardisk();
+				$chart['name']="Space Dalam Hardisk";
+				$chart['colorByPoint']=true;
+				$chart['data']=array();
+				$chart['data'][]=array('name'=>'Total Space Hardisk','y'=>(float)$data['total_space']);
+				$chart['data'][]=array('name'=>'Total Terpakai','y'=>(float)$data['space_pake']);
+				$chart['data'][]=array('name'=>'Sisa Space Hardisk','y'=>(float)$data['free_space'],"sliced"=>true,"selected"=>true);
+				echo json_encode(array($chart));exit; 
 			break;
 		}
 		echo json_encode($chart);

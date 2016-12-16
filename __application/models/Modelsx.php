@@ -12,6 +12,47 @@ class Modelsx extends CI_Model{
 			$where .=" AND ".$this->input->post('kat')." like '%".$this->db->escape_str($this->input->post('key'))."%'";
 		}
 		switch($type){
+			case "tbl_log":
+				$sql="SELECT * FROM tbl_log ".$where." ORDER BY create_date DESC ";
+			break;
+			case "chart_file":
+				$sql="SELECT A.nama_unit,
+					CASE WHEN B.total IS NULL THEN 0 ELSE B.total END AS total
+					FROM cl_unit_kerja A
+					LEFT JOIN(
+							SELECT B.nama_unit,COUNT(A.cl_unit_kerja_id)as total 
+							FROM tbl_upload_file A
+							LEFT JOIN cl_unit_kerja B ON A.cl_unit_kerja_id=B.id
+							GROUP BY B.nama_unit
+					)AS B ON A.nama_unit=B.nama_unit ";
+			break;
+			case "tbl_user":
+				$sql="SELECT A.*,B.group_user,C.nama_unit 
+						FROM tbl_user A 
+						LEFT JOIN cl_group_user B ON A.cl_user_group_id=B.id 
+						LEFT JOIN cl_unit_kerja C ON A.cl_unit_kerja_id=C.id 
+						".$where;
+			break;
+			case "ldap_user":
+				if($this->input->post('key')){
+					$data=$this->lib->get_ldap_user("data_ldap",$this->input->post('key'));
+				}else{
+					$data=$this->lib->get_ldap_user("data_ldap");
+				}
+				//print_r($data);
+				if($data['msg']==1){
+				   $responce = new stdClass();
+				   $responce->rows= $data['data'];
+				   $responce->total =count($data);
+				   return json_encode($responce);
+				}else{ 
+				   $responce = new stdClass();
+				   $responce->rows = 0;
+				   $responce->total = 0;
+				   return json_encode($responce);
+				} 
+				
+			break;
 			case "data_login":
 				$sql = "
 					SELECT A.*, B.nama_unit
@@ -20,11 +61,18 @@ class Modelsx extends CI_Model{
 					WHERE A.nama_user = '".$p1."'
 				";
 			break;
+			case "tbl_ldap_group":
+				$sql="SELECT A.*,B.group_user as grp_user,C.nama_unit 
+					  FROM tbl_ldap_group A 
+					  LEFT JOIN cl_group_user B ON A.cl_group_user_id=B.id
+					  LEFT JOIN cl_unit_kerja C ON A.cl_unit_kerja_id=C.id 
+					  ".$where." AND A.flag <> 'D'";
+			break;
 			case "group_ldap":
 				$sql="SELECT A.*,B.group_user 
 					  FROM tbl_ldap_group A
 					  LEFT JOIN cl_group_user B ON A.cl_group_user_id=B.id
-					  WHERE user_ldap='".$p1.$this->config->item('ldap_prefix_login')."'";
+					  WHERE user_ldap='".$p1."'";
 			break;
 			case "unit_sharing":
 				$sql="SELECT * FROM cl_unit_kerja
@@ -86,6 +134,23 @@ class Modelsx extends CI_Model{
 		}
 		
 		switch($table){
+			case "mapping": $table="tbl_ldap_group";break;
+			case "user_mng": $table="tbl_user"; break;
+			case "group": $table="cl_group_user"; break;
+			case "unit": $table="cl_unit_kerja"; break;
+			case "tbl_user":
+				if($sts_crud=='add'){
+					$cek_user=$this->db->get_where('tbl_user',array('nama_user'=>$data['nama_user']))->row_array();
+					if(isset($cek_user['nama_user'])){
+						$this->db->trans_rollback();
+						return 2;
+					}else{
+						$pwd=$data['password'];unset($data['password']);
+						$data['password']=$this->encrypt->encode($pwd);
+					}
+				}
+				//print_r($data);exit;
+			break;
 			case "sharing":
 				//print_r($data);exit;
 				$pilih=$data['pilihan'];
@@ -103,6 +168,7 @@ class Modelsx extends CI_Model{
 					 return $this->db->trans_commit();
 				}
 			break;
+			
 			case "tbl_upload_file":				
 				$target_path = "__repository/".$this->auth['cl_unit_kerja_id']."/";
 				if(!is_dir($target_path)) {

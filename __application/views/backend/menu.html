@@ -51,15 +51,34 @@
 			</a>
 			<ul class="submenu">
 				<li>
-					<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Grid/registration');$('#judul_kecil').html('Registration List')">
+					<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Grid/group');$('#judul_kecil').html('Group User')">
 						<i class="icon-double-angle-right"></i>
-						<span class="menu-text">Registration</span>
+						<span class="menu-text">Group User</span>
 					</a>
 				</li>
 				<li>
-					<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Grid/member');$('#judul_kecil').html('Member List')">
+					<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Grid/unit');$('#judul_kecil').html('Unit Kerja Data')">
 						<i class="icon-double-angle-right"></i>
-						<span class="menu-text">Member</span>
+						<span class="menu-text">Unit Kerja</span>
+					</a>
+				</li>
+				<li>
+					<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Grid/role');$('#judul_kecil').html('Member List')">
+						<i class="icon-double-angle-right"></i>
+						<span class="menu-text">User Role</span>
+					</a>
+				</li>
+				
+				<li>
+					<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Grid/user_mng');$('#judul_kecil').html('USer Management Application')">
+						<i class="icon-double-angle-right"></i>
+						<span class="menu-text">User Management</span>
+					</a>
+				</li>
+				<li>
+					<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Grid/mapping');$('#judul_kecil').html('Mapping User LDAP Group dan Unit')">
+						<i class="icon-double-angle-right"></i>
+						<span class="menu-text">Mapping LDAP</span>
 					</a>
 				</li>
 				<!--li>
@@ -70,7 +89,12 @@
 				</li-->
 			</ul>
 		</li>
-		
+		<li>
+			<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Grid/log');$('#judul_kecil').html('Log Aktivitas User')">
+				<i class="icon-desktop"></i>
+				<span class="menu-text">LOG</span>
+			</a>
+		</li>
 	</ul><!--/.nav-list-->
 
 	<div class="sidebar-collapse" id="sidebar-collapse">

@@ -28,8 +28,8 @@ class Login extends JINGGA_Controller {
 				}
 			}else{
 				//CEK LDAP
-				$cek_ldap=$this->lib->get_ldap_user("data_ldap",$user,$pass);
-				echo "<pre>";print_r($cek_ldap);exit;
+				$cek_ldap=$this->lib->get_ldap_user("login",$user,$pass);
+				//echo "<pre>";print_r($cek_ldap);exit;
 				if($cek_ldap['msg']==1){
 					$get_group=$this->modelsx->getdata('group_ldap', 'row_array', $user);
 					//echo "<pre>"; print_r($get_group);exit;

@@ -97,7 +97,8 @@ function chart_na(id_selector,type,title,subtitle,title_y,data_x,data_y,satuan){
 				chart: {
 					plotBackgroundColor: null,
 					plotBorderWidth: null,
-					plotShadow: false
+					plotShadow: false,
+					type: 'pie'
 				},
 				title: {
 					text: title
@@ -110,9 +111,12 @@ function chart_na(id_selector,type,title,subtitle,title_y,data_x,data_y,satuan){
 						allowPointSelect: true,
 						cursor: 'pointer',
 						dataLabels: {
-							enabled: false
-						},
-						showInLegend: true
+							enabled: true,
+							format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+							style: {
+								color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+							}
+						}
 					}
 				},
 				series: data_y
@@ -242,8 +246,58 @@ function genGrid(modnya, divnya, lebarnya, tingginya, par1){
 	var nowrap_nya = true;
 	var footer=false;
 	var row_number=true;
+	var paging=true;
 	
 	switch(modnya){
+		case "log":
+			judulnya = "";
+			urlnya = "tbl_log";
+			fitnya = true;
+			param=par1;
+			row_number=true;
+			urlglobal = host+'backoffice-Data/'+urlnya;
+			
+			kolom[modnya] = [
+				/*{field:'id',title:'Lihat Detil',width:120, halign:'center',align:'center',
+					formatter:function(value,rowData,rowIndex){
+						return '<button href="javascript:void(0)" onClick="kumpulAction(\'lihatlog\',\''+rowData.id+'\')" class="easyui-linkbutton" data-options="iconCls:\'icon-preview\'">Detil</button>';
+					}
+				},*/								
+				{field:'aktivitas',title:'Aktivitas',width:550, halign:'center',align:'left'},								
+				{field:'create_date',title:'Tgl. Aktivitas',width:150, halign:'center',align:'center'},	
+				{field:'create_by',title:'Dibuat Oleh',width:150, halign:'center',align:'center'}
+			];
+		break;
+		case "group":
+			judulnya = "";
+			urlnya = "cl_group_user";
+			fitnya = true;
+			param=par1;
+			row_number=true;
+			urlglobal = host+'backoffice-Data/'+urlnya;
+			
+			kolom[modnya] = [
+				{field:'group_user',title:'Group User',width:250, halign:'center',align:'left'},				
+				{field:'keterangan',title:'Keterangan',width:350, halign:'center',align:'left'},						
+				{field:'create_date',title:'Tgl. Buat',width:120, halign:'center',align:'left'},	
+				{field:'create_by',title:'Dibuat Oleh',width:150, halign:'center',align:'center'}
+			];
+		break;
+		case "unit":
+			judulnya = "";
+			urlnya = "cl_unit_kerja";
+			fitnya = true;
+			param=par1;
+			row_number=true;
+			urlglobal = host+'backoffice-Data/'+urlnya;
+			
+			kolom[modnya] = [
+				{field:'nama_unit',title:'Unit Kerja',width:250, halign:'center',align:'left'},				
+				{field:'keterangan',title:'Keterangan',width:350, halign:'center',align:'left'},						
+				{field:'create_date',title:'Tgl. Buat',width:120, halign:'center',align:'left'},	
+				{field:'create_by',title:'Dibuat Oleh',width:150, halign:'center',align:'center'}
+			];
+		break;
 		case "management_file":
 			judulnya = "";
 			urlnya = "tbl_upload_file";
@@ -275,6 +329,58 @@ function genGrid(modnya, divnya, lebarnya, tingginya, par1){
 				{field:'create_by',title:'Petugas Input',width:150, halign:'center',align:'center'}
 			];
 		break;
+		case "user_mng":
+			judulnya = "";
+			urlnya = "tbl_user";
+			fitnya = true;
+			param=par1;
+			row_number=true;
+			urlglobal = host+'backoffice-Data/'+urlnya;
+			
+			kolom[modnya] = [
+				{field:'nama_user',title:'User',width:150, halign:'center',align:'left'},				
+				{field:'nama_lengkap',title:'Nama',width:250, halign:'center',align:'left'},				
+				{field:'group_user',title:'Group User',width:150, halign:'center',align:'left'},				
+				{field:'nama_unit',title:'Nama Unit',width:200, halign:'center',align:'left'},				
+				{field:'email',title:'Email',width:200, halign:'center',align:'left'},				
+				{field:'create_date',title:'Tgl. Buat',width:120, halign:'center',align:'left'},	
+				{field:'create_by',title:'Dibuat Oleh',width:150, halign:'center',align:'center'}
+			];
+		break;
+		case "mapping":
+			judulnya = "";
+			urlnya = "tbl_ldap_group";
+			fitnya = true;
+			param=par1;
+			row_number=true;
+			urlglobal = host+'backoffice-Data/'+urlnya;
+			
+			kolom[modnya] = [
+				{field:'user_ldap',title:'LDAP User',width:250, halign:'center',align:'left'},				
+				{field:'grp_user',title:'Group User',width:150, halign:'center',align:'left'},				
+				{field:'nama_unit',title:'Nama Unit',width:200, halign:'center',align:'left'},				
+				{field:'create_date',title:'Tgl. Buat',width:120, halign:'center',align:'left'},	
+				{field:'create_by',title:'Dibuat Oleh',width:150, halign:'center',align:'center'}
+			];
+		break;
+		case "ldap_user":
+			judulnya = "";
+			urlnya = "ldap_user";
+			fitnya = true;
+			param=par1;
+			row_number=true;
+			urlglobal = host+'backoffice-Data/'+urlnya;
+			paging=false;
+			kolom[modnya] = [
+				{field:'samaccountname',title:'LDAP User',width:180, halign:'center',align:'left',
+					formatter:function(value,rowData,rowIndex){
+						if(value){ return value; }
+						else return rowData.cn;
+					}
+				},							
+				{field:'displayname',title:'Nama',width:260, halign:'center',align:'left'}
+			];
+		break;
 	}
 	
 	grid_nya=$("#"+divnya).datagrid({
@@ -285,7 +391,7 @@ function genGrid(modnya, divnya, lebarnya, tingginya, par1){
 		iconCls:'database',
 		fit:fitnya,
 		striped:true,
-		pagination:true,
+		pagination:paging,
 		remoteSort: false,
 		showFooter:footer,
 		singleSelect:singleSelek,
@@ -304,7 +410,11 @@ function genGrid(modnya, divnya, lebarnya, tingginya, par1){
 			$('.btn_grid').linkbutton();
 		},
 		onClickRow:function(rowIndex,rowData){
-		 
+			if(modnya=='ldap_user'){
+				$('#user_ldap').val(rowData.samaccountname);
+				$('#user_na').html(rowData.samaccountname);
+				$('#nama_na').html(rowData.displayname);
+			}
 		},
 		onDblClickRow:function(rowIndex,rowData){
 			

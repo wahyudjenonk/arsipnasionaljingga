@@ -420,13 +420,13 @@ class Lib {
 				$ldapbind = @ldap_bind($ldapconn, $user.$ci->config->item("ldap_prefix_login"), $pwd);
 			}
 			if ($ldapbind) {
-				$ldap_tree = "DC=scisi,DC=com";
-				//$ldap_fields=array("samaccountname","name","primarygroupid","displayname","distinguishedname","cn","description","memberof","userprincipalname");           
+				
+				$ldap_fields=array("samaccountname","name","primarygroupid","displayname","distinguishedname","cn","description","memberof","userprincipalname");           
 				if($mod=='data_ldap'){
-					$result=@ldap_search($ldapconn,$ldap_tree, "(objectCategory=person)",$ldap_fields);
+					$result=@ldap_search($ldapconn,$ci->config->item("ldap_tree"), "(&(objectCategory=person)(samaccountname=$user))",$ldap_fields);
 				}else if($mod=='login'){
 					
-                    $result=ldap_search($ldapconn,$ldap_tree,"(&(objectCategory=person)(samaccountname=$user))");
+                    $result=ldap_search($ldapconn,$ci->config->item("ldap_tree"),"(&(objectCategory=person)(samaccountname=$user))");
 				}
 				$data=$this->konvert_array($ldapconn,$result);
 				$res["data"]=$data;//GAGAL KONEK
@@ -463,5 +463,30 @@ class Lib {
 			}
 		}
 		return $resultArray;
+	}
+	function get_space_hardisk(){
+		$data=array();
+		$bytes = disk_free_space(".");
+		$si_prefix = array( 'B', 'KB', 'MB', 'GB', 'TB', 'EB', 'ZB', 'YB' );
+		$base = 1024;
+		$class = min((int)log($bytes , $base) , count($si_prefix) - 1);
+		//echo $bytes . '<br />';
+		//echo sprintf('%1.2f' , $bytes / pow($base,$class)) . ' ' . $si_prefix[$class] . '<br />';
+		$data['free_space']=sprintf('%1.2f' , $bytes / pow($base,$class));
+		$data['free_space_satuan']=$si_prefix[$class];
+		
+		$Bytes = disk_total_space("/");
+		$Type=array( 'B', 'KB', 'MB', 'GB', 'TB', 'EB', 'ZB', 'YB' );
+		$counter=0;
+		while($Bytes>=1024)
+		{
+			$Bytes/=1024;
+			$counter++;
+		}
+		$data['total_space']=number_format($Bytes,2);
+		$data['total_space_satuan']=$Type[$counter];
+		$data['space_pake']=(double)($data['total_space']-$data['free_space']);
+		return $data;
+		
 	}
 }
