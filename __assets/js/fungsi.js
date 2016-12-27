@@ -1,6 +1,12 @@
 $(function() {
-	loadUrl(host+'beranda');
-});
+	if(grp == 1 || grp == 2){
+		loadUrl(host+'beranda', 'Dashboard App');
+		$('#judul_kecil').html('Dashboard App');
+	}else{
+		loadUrl(host+'backoffice-getmodul/management_file/main', 'Management File');
+		$('#judul_kecil').html('Management File');
+	}
+});	
 
 var today = new Date();
 var dd = today.getDate();
@@ -40,14 +46,14 @@ function chart_na(id_selector,type,title,subtitle,title_y,data_x,data_y,satuan){
 					borderWidth: 0,
 					dataLabels: {
 						enabled: true,
-						format: '{point.y:.1f}'
+						format: '{point.y:.0f}'
 					}
 				}
 			},
 
 			tooltip: {
 				headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
-				pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}</b> of total<br/>'
+				pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.0f}</b><br/>'
 			},
 
 			series: data_x
@@ -278,9 +284,11 @@ function genGrid(modnya, divnya, lebarnya, tingginya, par1){
 			
 			kolom[modnya] = [
 				{field:'group_user',title:'Group User',width:250, halign:'center',align:'left'},				
-				{field:'keterangan',title:'Keterangan',width:350, halign:'center',align:'left'},						
-				{field:'create_date',title:'Tgl. Buat',width:120, halign:'center',align:'left'},	
-				{field:'create_by',title:'Dibuat Oleh',width:150, halign:'center',align:'center'}
+				{field:'id',title:'User Role Setting',width:120, halign:'center',align:'center',
+					formatter:function(value,rowData,rowIndex){
+						return '<button href="javascript:void(0)" onClick="kumpulAction(\'userrole\',\''+rowData.id+'\',\''+rowData.group_user+'\')" class="easyui-linkbutton" data-options="iconCls:\'icon-save\'">Setting</button>';
+					}
+				},						
 			];
 		break;
 		case "unit":
@@ -298,7 +306,7 @@ function genGrid(modnya, divnya, lebarnya, tingginya, par1){
 				{field:'create_by',title:'Dibuat Oleh',width:150, halign:'center',align:'center'}
 			];
 		break;
-		case "management_file":
+		case "upload_file":
 			judulnya = "";
 			urlnya = "tbl_upload_file";
 			fitnya = true;
@@ -311,22 +319,75 @@ function genGrid(modnya, divnya, lebarnya, tingginya, par1){
 						return '<button href="javascript:void(0)" onClick="kumpulAction(\'lihatfile\',\''+rowData.nama_file+'\',\''+rowData.id+'\')" class="easyui-linkbutton" data-options="iconCls:\'icon-preview\'">Lihat File</button>';
 					}
 				},
-				{field:'id',title:'Sharing',width:130, halign:'center',align:'center',
+				{field:'id',title:'Sharing',width:130, halign:'center',align:'center', hidden:(grp == 2 || grp == 4 ? false : true),
 					formatter:function(value,rowData,rowIndex){
 						return '<button href="javascript:void(0)" onClick="kumpulAction(\'sharing_file\',\''+rowData.id+'\')" class="easyui-linkbutton" data-options="iconCls:\'icon-preview\'">Sharing File</button>';
 					}
 				},
-				{field:'no_dokumen',title:'No. Dokumen',width:300, halign:'center',align:'left'},
+				{field:'no_dokumen',title:'No. Dokumen',width:150, halign:'center',align:'left'},
 			];
 			kolom[modnya] = [
 				
 				{field:'unit_kerja',title:'Unit Kerja',width:200, halign:'center',align:'left', hidden:(grp == 1 ? false : true)},				
-				{field:'tipe_dokumen',title:'Tipe Dokumen',width:200, halign:'center',align:'left'},				
-				{field:'perihal',title:'Perihal',width:200, halign:'center',align:'left'},				
-				{field:'pengirim',title:'Pengirim',width:200, halign:'center',align:'left'},				
+				{field:'tipe_dokumen',title:'Jenis Dokumen',width:300, halign:'center',align:'left'},				
+				{field:'perihal',title:'Perihal',width:300, halign:'center',align:'left'},				
+				{field:'pengirim',title:'Pengirim',width:300, halign:'center',align:'left'},				
 				
 				{field:'tanggal_upload',title:'Tanggal Upload',width:150, halign:'center',align:'center'},
 				{field:'create_by',title:'Petugas Input',width:150, halign:'center',align:'center'}
+			];
+		break;
+		case "request_delete":
+			judulnya = "";
+			urlnya = "tbl_upload_file";
+			fitnya = true;
+			param['request_delete'] = "request";
+			row_number=true;
+			urlglobal = host+'backoffice-Data/'+urlnya;
+			frozen[modnya] = [
+				{field:'nama_file',title:'File Arsip',width:120, halign:'center',align:'center',
+					formatter:function(value,rowData,rowIndex){
+						return '<button href="javascript:void(0)" onClick="kumpulAction(\'lihatfile\',\''+rowData.nama_file+'\',\''+rowData.id+'\')" class="easyui-linkbutton" data-options="iconCls:\'icon-preview\'">Lihat File</button>';
+					}
+				},
+				{field:'no_dokumen',title:'No. Dokumen',width:150, halign:'center',align:'left'},
+			];
+			kolom[modnya] = [
+				
+				{field:'unit_kerja',title:'Unit Kerja',width:200, halign:'center',align:'left', hidden:(grp == 1 ? false : true)},				
+				{field:'tipe_dokumen',title:'Jenis Dokumen',width:300, halign:'center',align:'left'},				
+				{field:'perihal',title:'Perihal',width:300, halign:'center',align:'left'},				
+				{field:'pengirim',title:'Pengirim',width:300, halign:'center',align:'left'},				
+				
+				{field:'tanggal_upload',title:'Tanggal Upload',width:150, halign:'center',align:'center'},
+				{field:'create_by',title:'Petugas Input',width:150, halign:'center',align:'center'}
+			];
+		break;
+		case "data_sharing":
+			judulnya = "";
+			urlnya = "tbl_sharing_file";
+			fitnya = true;
+			param=par1;
+			row_number=true;
+			urlglobal = host+'backoffice-Data/'+urlnya;
+			frozen[modnya] = [
+				{field:'nama_file',title:'File Arsip',width:120, halign:'center',align:'center',
+					formatter:function(value,rowData,rowIndex){
+						return '<button href="javascript:void(0)" onClick="kumpulAction(\'lihatfilesharing\',\''+rowData.nama_file+'\',\''+rowData.id+'\',\''+rowData.cl_unit_kerja_id+'\')" class="easyui-linkbutton" data-options="iconCls:\'icon-preview\'">Lihat File</button>';
+					}
+				},
+				{field:'no_dokumen',title:'No. Dokumen',width:150, halign:'center',align:'left'},
+			];
+			kolom[modnya] = [	
+				{field:'nama_unit',title:'Unit Kerja',width:200, halign:'center',align:'left'},				
+				{field:'tipe_dokumen',title:'Jenis Dokumen',width:300, halign:'center',align:'left'},				
+				{field:'perihal',title:'Perihal',width:300, halign:'center',align:'left'},				
+				{field:'pengirim',title:'Pengirim',width:300, halign:'center',align:'left'},								
+				{field:'time_limit',title:'Sisa Waktu',width:150, halign:'center',align:'left',
+					formatter:function(value,rowData,rowIndex){
+						return value+" Hari Lagi";
+					},
+				},								
 			];
 		break;
 		case "user_mng":
@@ -421,10 +482,13 @@ function genGrid(modnya, divnya, lebarnya, tingginya, par1){
 		},
 		toolbar: '#tb_'+modnya,
 		rowStyler: function(index,row){
-			if(modnya == 'reservasi'){
-				if (row.flag == 1){
-					return 'background-color:#C5FFC2;'; // return inline style
-				}else if(row.flag == 0){
+			if(modnya == 'upload_file'){
+				if (row.status_data == 'RD'){
+					return 'background-color:#FFD1BB;'; // return inline style
+				}
+			}
+			if(modnya == 'request_delete'){
+				if (row.status_data == 'RD'){
 					return 'background-color:#FFD1BB;'; // return inline style
 				}
 			}
@@ -452,10 +516,15 @@ function genform(type, modulnya, submodulnya, stswindow, tabel){
 	var adafilenya = false;
 	
 	switch(submodulnya){
-		case "management_file":
+		case "upload_file":
+			table = "tbl_upload_file";
+			urldelete = host+'backoffice-simpan/'+table;
+			urlpost = host+'backoffice-form/upload_file/';
+		break;
+		case "request_delete":
 			table = "tbl_upload_file";
 			adafilenya = true;
-			var urldelete = host+'backoffice-simpan/'+table;
+			urldelete = host+'backoffice-simpan/'+table;
 		break;
 		
 	}
@@ -479,6 +548,7 @@ function genform(type, modulnya, submodulnya, stswindow, tabel){
 		break;
 		case "edit":
 		case "delete":		
+		case "req_delete":		
 			var row = grid_nya.datagrid('getSelected');
 			if(row){
 				if(type=='edit'){
@@ -498,7 +568,7 @@ function genform(type, modulnya, submodulnya, stswindow, tabel){
 					});
 				}else if(type=='delete'){
 					//if(confirm("Anda Yakin Menghapus Data Ini ?")){
-					$.messager.confirm('Homtel BackOfiice','Anda Yakin Menghapus Data Ini ?',function(re){
+					$.messager.confirm('PGN Solution','Anda Yakin Menghapus Data Ini ?',function(re){
 						if(re){
 							if(adafilenya){
 								nama_file = row.nama_file;
@@ -507,31 +577,54 @@ function genform(type, modulnya, submodulnya, stswindow, tabel){
 							$.post(urldelete, {'id':row.id, 'nama_file':nama_file, 'editstatus':'delete'}, function(r){
 								if(r==1){
 									winLoadingClose();
-									$.messager.alert('Homtel BackOfiice',"Data Terhapus",'info');
+									$.messager.alert('PGN Solution',"Data Terhapus",'info');
 									grid_nya.datagrid('reload');								
 								}else{
 									winLoadingClose();
 									console.log(r)
-									$.messager.alert('Homtel BackOfiice',"Gagal Menghapus Data",'error');
+									$.messager.alert('PGN Solution',"Gagal Menghapus Data",'error');
 								}
 							});	
 						}
 					});	
 					//}
+				}else if(type=='req_delete'){
+					if(row.status_data == 'RD'){
+						$.messager.alert('PGN Solution',"Data Sudah Direquest Untuk Dihapus",'error');
+						return false;
+					}
+					
+					$.messager.confirm('PGN Solution','Anda Yakin Untuk Request Hapus Data Ini Kepada Admin ?',function(re){
+						if(re){
+							loadingna();
+							$.post(urldelete, {'id':row.id, 'editstatus':'req_delete'}, function(r){
+								if(r==1){
+									winLoadingClose();
+									$.messager.alert('PGN Solution',"Data Terhapus",'info');
+									grid_nya.datagrid('reload');								
+								}else{
+									winLoadingClose();
+									console.log(r)
+									$.messager.alert('PGN Solution',"Gagal Menghapus Data",'error');
+								}
+							});	
+						}
+					});	
 				}
 				
-			}
-			else{
-				$.messager.alert('Roger Salon',"Select Row In Grid",'error');
+			}else{
+				$.messager.alert('PGN Solution',"Pilih Data Yang Akan Dihapus",'error');
 			}
 		break;
 		
 	}
 }
 
-function genTab(div, mod, sub_mod, tab_array, div_panel, judul_panel, mod_num, height_panel, height_tab, width_panel, width_tab){
+function genTab(div, mod, tab_array, height_tab, width_tab){
+	/*
 	var id_sub_mod=sub_mod.split("_");
 	if(typeof(div_panel)!= "undefined" || div_panel!=""){
+		
 		$(div_panel).panel({
 			width:(typeof(width_panel) == "undefined" ? getClientWidth()-268 : width_panel),
 			height:(typeof(height_panel) == "undefined" ? getClientHeight()-100 : height_panel),
@@ -546,21 +639,22 @@ function genTab(div, mod, sub_mod, tab_array, div_panel, judul_panel, mod_num, h
 					}
 			}]
 		}); 
+		//
 	}
+	*/
 	
 	$(div).tabs({
 		title:'AA',
-		height: (typeof(height_tab) == "undefined" ? getClientHeight()-190 : height_tab),
-		width: (typeof(width_tab) == "undefined" ? getClientWidth()-280 : width_tab),
+		height: getClientHeight()-150,
+		width: getClientWidth()-280,
 		plain: false,
 		fit:true,
-		onSelect: function(title){
+		onSelect: function(title,index){
 				var isi_tab=title.replace(/ /g,"_");
 				var par={};
 				console.log(isi_tab);
 				$('#'+isi_tab.toLowerCase()).html('').addClass('loading');
-				urlnya = host+'index.php/content-tab/'+mod+'/'+isi_tab.toLowerCase();
-				$(div_panel).panel({title:title});
+				urlnya = host+'backoffice-getmodul/'+mod+'/'+isi_tab.toLowerCase();
 				
 				switch(mod){
 					case "kasir":
@@ -570,10 +664,8 @@ function genTab(div, mod, sub_mod, tab_array, div_panel, judul_panel, mod_num, h
 						par['posisi_lantai'] = lantainya;
 						urlnya = host+'kasir-lantai/';
 					break;
-					case "pengaturan":
-						
-					break;
 				}
+				
 				$.post(urlnya,par,function(r){
 					$('#'+isi_tab.toLowerCase()).removeClass('loading').html(r);
 				});
@@ -583,9 +675,11 @@ function genTab(div, mod, sub_mod, tab_array, div_panel, judul_panel, mod_num, h
 	
 	if(tab_array.length > 0){
 		for(var x in tab_array){
-			var isi_tab=tab_array[x].replace(/ /g,"_");
+			var isi_tab = tab_array[x].replace(/ /g,"_");
 			$(div).tabs('add',{
 				title:tab_array[x],
+				index:x,
+				selected:(x == 0 ? true : false),
 				content:'<div style="padding: 5px;"><div id="'+isi_tab.toLowerCase()+'" style="height: 200px;">'+isi_tab.toLowerCase()+'zzzz</div></div>'
 			});
 		}
@@ -601,13 +695,18 @@ function kumpulAction(type, p1, p2, p3, p4, p5){
 				windowForm(rsp, 'Lihat File Dokumen', 1000, 600);
 			});
 		break;
+		case "lihatfilesharing":
+			$.post(host+'backoffice-getmodul/preview_file_sharing/'+p2, { 'nama_file':p1, 'idx':p2, 'untkrj':p3 }, function(rsp){
+				windowForm(rsp, 'Lihat File Dokumen', 1000, 600);
+			});
+		break;
 		case "reservation":
 			grid = $('#grid_reservasi').datagrid('getSelected');
 			$.post(host+'backend/simpan_data/tbl_reservasi_confirm', { 'id':grid.id, 'confirm':p1 }, function(rsp){
 				if(rsp == 1){
-					$.messager.alert('Roger Salon',"Confirm OK",'info');
+					$.messager.alert('PGN Solution',"Confirm OK",'info');
 				}else{
-					$.messager.alert('Roger Salon',"Failed Confirm",'error');
+					$.messager.alert('PGN Solution',"Failed Confirm",'error');
 				}
 				$('#grid_reservasi').datagrid('reload');	
 			} );
@@ -617,6 +716,13 @@ function kumpulAction(type, p1, p2, p3, p4, p5){
 				windowForm(rsp, 'Lihat File Dokumen', 700, 500);
 			});
 		break;
+		case "userrole":
+			$.post(host+'backoffice-getmodul/user_management/form_user_role', {'id':p1, 'editstatus':'add'}, function(resp){
+				var lebar = getClientWidth()-500;
+				var tinggi = getClientHeight()-180;
+				windowForm(resp, "User Group Role Privilleges - "+p2, lebar, tinggi);
+			});
+		break;				
 	}
 }	
 

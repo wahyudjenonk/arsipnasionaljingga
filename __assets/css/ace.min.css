@@ -7283,7 +7283,7 @@ th .lbl:only-child,td .lbl:only-child {
     box-shadow: none;
     border-radius: 0;
     margin: -1px 0 0 -1px;
-    padding: 8px 3px 6px 9px;
+    padding: 8px 10px 6px 9px;
     border: 1px dotted;
     border-color: #d8d8d8!important;
     vertical-align: middle;
