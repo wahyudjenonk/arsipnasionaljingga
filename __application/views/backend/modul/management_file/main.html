@@ -1,0 +1,25 @@
+<div id="panel_{$main}" style="padding:5px;">
+	<div id="tab_{$main}"></div>
+</div>
+
+<script>
+	$('#panel_{$main}').css('height', (getClientHeight()-115) );
+	if(grp == 4){
+		var tab_array=[
+			"Main Data", "Data Sharing"
+		];
+	}else if(grp == 3){
+		var tab_array=[
+			"Main Data"
+		];
+	}else if(grp == 2){
+		var tab_array=[
+			"Main Data", "Request Delete", "Data Sharing"
+		];
+	}else if(grp == 1){
+		var tab_array=[
+			"Main Data"
+		];
+	}
+	genTab( '#tab_{$main}', '{$main}', tab_array );
+</script>

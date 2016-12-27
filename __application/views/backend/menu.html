@@ -1,5 +1,48 @@
 <div  class="sidebar fixed" id="sidebar">
+	<div class="sidebar-shortcuts" id="sidebar-shortcuts">
+		<b>MENU UTAMA</b>
+	</div>
 	<ul class="nav nav-list">
+		{foreach from=$menu item=x}
+		<li>
+			{if $x.type_menu eq 'PC'}
+				<a href="javascript:void(0);"  class="dropdown-toggle" >
+					<i class="{$x.icon_menu}"></i>
+					<span class="menu-text">{$x.parent}</span>
+					<b class="arrow icon-angle-down"></b>
+				</a>
+				<ul class="submenu">
+					{foreach from=$x.child item=y}
+						{if $y.type_menu eq 'C'}
+							<li>
+								<a href="javascript:void(0);" onClick="loadUrl('{$host}{$y.url}');$('#judul_kecil').html('{$y.judul_kecil}')">{$y.menu}
+								</a>
+							</li>
+						{elseif $y.type_menu eq 'CHC'}
+							<li>
+								<a href="javascript:void(0);">{$y.menu}<span class="fa arrow"></span></a>
+								{if isset($y.sub_child) }
+									<ul class="nav nav-third-level collapse">
+										{foreach from=$y.sub_child item=z}
+											<li><a href="javascript:void(0);" onClick="loadUrl('{$host}{$z.url}')">- {$z.sub_menu}</a></li>
+										{/foreach}
+									</ul>
+								{/if}
+							</li>
+						{/if}
+					{/foreach}
+				</ul>
+			{elseif $x.type_menu eq 'P'}
+				<a href="javascript:void(0);" onclick="loadUrl('{$host}{$x.url}');$('#judul_kecil').html('{$x.judul_kecil}')">
+					<i class="{$x.icon_menu}"></i>
+					<span class="menu-text">{$x.parent}</span>
+				</a>
+			{/if}
+		</li>
+		{/foreach}
+	</ul>
+	
+	{*	
 		<li>
 			<a href="javascript:void(0);" onclick="loadUrl('{$host}beranda');$('#judul_kecil').html('Dashboard App')">
 				<i class="icon-bar-chart"></i>
@@ -15,13 +58,6 @@
 		</li>
 		
 		<li>
-			<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Grid/reservation');$('#judul_kecil').html('Reservation List')">
-				<i class="icon-desktop"></i>
-				<span class="menu-text">Access File</span>
-			</a>
-		</li>		
-		
-		<li>
 			<a href="javascript:void(0);"  class="dropdown-toggle" >
 				<i class="icon-book"></i>
 				<span class="menu-text">Report</span>
@@ -35,7 +71,7 @@
 					</a>
 				</li>
 				<li>
-					<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Report/inv_unpaid');$('#judul_kecil').html('Report Invoice UnPaid')">
+					<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Grid/log');$('#judul_kecil').html('Report Log Aktivitas User')">
 						<i class="icon-double-angle-right"></i>
 						<span class="menu-text"> Report Log </span>
 					</a>
@@ -62,12 +98,6 @@
 						<span class="menu-text">Unit Kerja</span>
 					</a>
 				</li>
-				<li>
-					<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Grid/role');$('#judul_kecil').html('Member List')">
-						<i class="icon-double-angle-right"></i>
-						<span class="menu-text">User Role</span>
-					</a>
-				</li>
 				
 				<li>
 					<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Grid/user_mng');$('#judul_kecil').html('USer Management Application')">
@@ -89,14 +119,8 @@
 				</li-->
 			</ul>
 		</li>
-		<li>
-			<a href="javascript:void(0);" onclick="loadUrl('{$host}backoffice-Grid/log');$('#judul_kecil').html('Log Aktivitas User')">
-				<i class="icon-desktop"></i>
-				<span class="menu-text">LOG</span>
-			</a>
-		</li>
 	</ul><!--/.nav-list-->
-
+	*}
 	<div class="sidebar-collapse" id="sidebar-collapse">
 		<i class="icon-double-angle-left"></i>
 	</div>

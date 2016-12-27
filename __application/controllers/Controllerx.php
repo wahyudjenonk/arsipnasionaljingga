@@ -17,6 +17,8 @@ class Controllerx extends JINGGA_Controller {
 	
 	function index(){
 		if($this->auth){
+			$menu = $this->modelsx->getdata('menu', 'variable');
+			$this->nsmarty->assign('menu', $menu);
 			$this->nsmarty->display( 'backend/main-backend.html');
 		}else{
 			$this->nsmarty->display( 'backend/main-login.html');
@@ -26,6 +28,33 @@ class Controllerx extends JINGGA_Controller {
 	function modul($p1="",$p2=""){
 		if($this->auth){
 			switch($p1){
+				case "beranda":
+					switch($p2){
+						case "main":
+							if($this->auth['cl_user_group_id'] == 1){
+								$array_filter = array();
+							}elseif($this->auth['cl_user_group_id'] == 2){
+								$array_filter = array(
+									'id' => $this->auth['cl_user_group_id']
+								);
+							}
+							$data_unit_kerja = $this->db->get_where('cl_unit_kerja', $array_filter)->result_array();
+							foreach($data_unit_kerja as $k => $v){
+								$data_total_dokumen = $this->modelsx->getdata('total_dokumen_unit_kerja', 'row_array', $v['id']);
+								$data_unit_kerja[$k]['jumlah'] = $data_total_dokumen['jmlnya'];
+								unset($data_unit_kerja[$k]['keterangan']);
+								unset($data_unit_kerja[$k]['create_date']);
+								unset($data_unit_kerja[$k]['create_by']);
+							}
+							$this->nsmarty->assign('data_unit_kerja', $data_unit_kerja);
+							
+							/*
+							echo "<pre>";
+							print_r($data_unit_kerja);exit;
+							//*/
+						break;
+					}
+				break;
 				case "preview_file":
 					if($this->auth['cl_user_group_id'] == '1'){
 						$getdata = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('idx')) )->row_array();
@@ -41,6 +70,15 @@ class Controllerx extends JINGGA_Controller {
 					echo $html;
 					exit;
 				break;
+				case "preview_file_sharing":
+					$target_path = $this->host."__repository/".$this->input->post('untkrj')."/";					
+					$nama_file = $this->input->post('nama_file');
+					$html = '
+						<iframe src="'.$target_path.$nama_file.'" frameborder="0"  scrolling="no" width="100%" height="550"></iframe>
+					';
+					echo $html;
+					exit;
+				break;
 				case "management_file":
 					switch($p2){
 						case "sharing_file":
@@ -49,6 +87,68 @@ class Controllerx extends JINGGA_Controller {
 							$this->nsmarty->assign("data", $data);
 							$this->nsmarty->assign("unit", $unit);
 							//print_r($unit);
+						break;
+					}
+				break;
+				case "user_management":
+					switch($p2){
+						case "form_user_role":
+							$id_role = $this->input->post('id');
+							$array = array();
+							$dataParent = $this->modelsx->getdata('menu_parent', 'result_array');
+							foreach($dataParent as $k=>$v){
+								$dataChild = $this->modelsx->getdata('menu_child', 'result_array', $v['id']);
+								$dataPrev = $this->modelsx->getdata('previliges_menu', 'row_array', $v['id'], $id_role);
+								
+								$array[$k]['id'] = $v['id'];
+								$array[$k]['nama_menu'] = $v['nama_menu'];
+								$array[$k]['id_prev'] = (isset($dataPrev['id']) ? $dataPrev['id'] : 0) ;
+								$array[$k]['buat'] = (isset($dataPrev['buat']) ? $dataPrev['buat'] : 0) ;
+								$array[$k]['baca'] = (isset($dataPrev['baca']) ? $dataPrev['baca'] : 0);
+								$array[$k]['ubah'] = (isset($dataPrev['ubah']) ? $dataPrev['ubah'] : 0);
+								$array[$k]['hapus'] = (isset($dataPrev['hapus']) ? $dataPrev['hapus'] : 0);
+								$array[$k]['child_menu'] = array();
+								$jml = 0;
+								foreach($dataChild as $y => $t){
+									$dataPrevChild = $this->modelsx->getdata('previliges_menu', 'row_array', $t['id'], $id_role);
+									$array[$k]['child_menu'][$y]['id_child'] = $t['id'];
+									$array[$k]['child_menu'][$y]['nama_menu_child'] = $t['nama_menu'];
+									$array[$k]['child_menu'][$y]['type_menu'] = $t['type_menu'];
+									$array[$k]['child_menu'][$y]['id_prev'] = (isset($dataPrevChild['id']) ? $dataPrevChild['id'] : 0) ;
+									$array[$k]['child_menu'][$y]['buat'] = (isset($dataPrevChild['buat']) ? $dataPrevChild['buat'] : 0) ;
+									$array[$k]['child_menu'][$y]['baca'] = (isset($dataPrevChild['baca']) ? $dataPrevChild['baca'] : 0) ;
+									$array[$k]['child_menu'][$y]['ubah'] = (isset($dataPrevChild['ubah']) ? $dataPrevChild['ubah'] : 0) ;
+									$array[$k]['child_menu'][$y]['hapus'] = (isset($dataPrevChild['hapus']) ? $dataPrevChild['hapus'] : 0) ;
+									$jml++;
+									
+									if($t['type_menu'] == 'CHC'){
+										$array[$k]['child_menu'][$y]['sub_child_menu'] = array();
+										$dataSubChild = $this->modelsx->getdata('menu_child_2', 'result_array', $t['id']);
+										$jml_sub_child = 0;
+										foreach($dataSubChild as $x => $z){
+											$dataPrevSubChild = $this->modelsx->getdata('previliges_menu', 'row_array', $z['id'], $id_role);
+											$array[$k]['child_menu'][$y]['sub_child_menu'][$x]['id_sub_child'] = $z['id'];
+											$array[$k]['child_menu'][$y]['sub_child_menu'][$x]['nama_menu_sub_child'] = $z['nama_menu'];
+											$array[$k]['child_menu'][$y]['sub_child_menu'][$x]['id_prev'] = (isset($dataPrevSubChild['id']) ? $dataPrevSubChild['id'] : 0) ;
+											$array[$k]['child_menu'][$y]['sub_child_menu'][$x]['buat'] = (isset($dataPrevSubChild['buat']) ? $dataPrevSubChild['buat'] : 0) ;
+											$array[$k]['child_menu'][$y]['sub_child_menu'][$x]['baca'] = (isset($dataPrevSubChild['baca']) ? $dataPrevSubChild['baca'] : 0) ;
+											$array[$k]['child_menu'][$y]['sub_child_menu'][$x]['ubah'] = (isset($dataPrevSubChild['ubah']) ? $dataPrevSubChild['ubah'] : 0) ;
+											$array[$k]['child_menu'][$y]['sub_child_menu'][$x]['hapus'] = (isset($dataPrevSubChild['hapus']) ? $dataPrevSubChild['hapus'] : 0) ;
+											$jml_sub_child++;
+										}
+									}
+								}
+								$array[$k]['total_child'] = $jml;
+							}
+							
+							/*
+							echo "<pre>";
+							print_r($array);
+							exit;
+							//*/
+							
+							$this->nsmarty->assign('role', $array);
+							$this->nsmarty->assign('id_group', $id_role);
 						break;
 					}
 				break;
@@ -76,7 +176,8 @@ class Controllerx extends JINGGA_Controller {
 		$sts=$this->input->post('editstatus');
 		$this->nsmarty->assign('sts',$sts);
 		switch($mod){
-			case "management_file":
+			case "upload_file":
+				$temp="backend/modul/management_file/main-form.html";
 				if($sts=='edit'){
 					$data = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('id')) )->row_array();
 					$this->nsmarty->assign('data',$data);
@@ -85,7 +186,7 @@ class Controllerx extends JINGGA_Controller {
 						$this->nsmarty->assign('filenya', $target_path.$data['nama_file']);
 					}
 				}
-				$this->nsmarty->assign("tipe_dokumen", $this->lib->fillcombo('tipe_dokumen', 'return', ($sts == 'edit' ? $data['tipe_dokumen'] : "") ) );
+				$this->nsmarty->assign("jenis_dokumen", $this->lib->fillcombo('cl_jenis_dokumen', 'return', ($sts == 'edit' ? $data['cl_tipe_dokumen_id'] : "") ) );
 			break;
 			case "mapping":
 				$temp='backend/modul/user_management/mapping-form.html';
@@ -280,10 +381,11 @@ class Controllerx extends JINGGA_Controller {
 				$x['name']='File Upload';
 				$x['colorByPoint']='true';
 				$x['data']=array();
-				$data=$this->modelsx->getdata('chart_file','result_array');
+				$data = $this->modelsx->getdata('chart_file','result_array');
 				$idx=0;
 				foreach($data as $v=>$z){
 					$x['data'][$idx]=array('name'=>$z['nama_unit'],'y'=>(float)$z['total']);
+					//$x['data'][$idx]=array('name'=>$z['nama_unit'],'y'=>$z['total']);
 					$idx++;
 				}
 				$chart['x']=array($x);
@@ -293,12 +395,16 @@ class Controllerx extends JINGGA_Controller {
 				$chart['name']="Space Dalam Hardisk";
 				$chart['colorByPoint']=true;
 				$chart['data']=array();
-				$chart['data'][]=array('name'=>'Total Space Hardisk','y'=>(float)$data['total_space']);
+				//$chart['data'][]=array('name'=>'Total Space Hardisk','y'=>(float)$data['total_space']);
 				$chart['data'][]=array('name'=>'Total Terpakai','y'=>(float)$data['space_pake']);
 				$chart['data'][]=array('name'=>'Sisa Space Hardisk','y'=>(float)$data['free_space'],"sliced"=>true,"selected"=>true);
 				echo json_encode(array($chart));exit; 
 			break;
 		}
 		echo json_encode($chart);
+	}
+	
+	function tester(){
+		print_r($this->auth);
 	}
 }

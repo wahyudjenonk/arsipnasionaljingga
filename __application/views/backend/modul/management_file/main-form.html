@@ -10,21 +10,23 @@
 			<input type='hidden' name="id" value="{$data.id|default:''}" />
 			
 			<div class="control-group">
-				<label class="control-label" for="form-field-1">Tipe Dokumen</label>
+				<label class="control-label" for="form-field-1">Jenis Dokumen</label>
 				<div class="controls">
-					<select name='tipe_dokumen' class='validasi' id='tipe_dokumen' >
-						{$tipe_dokumen}
+					<select name='cl_jenis_dokumen_id' class='validasi' id='cl_jenis_dokumen_id' >
+						{$jenis_dokumen}
 					</select>
 				</div>
 			</div>
+			{*
 			<div class="control-group">
 				<label class="control-label" for="form-field-1">No. Dokumen</label>
 				<div class="controls">
 					<input  id="no_dokumen" name="no_dokumen" value="{$data.no_dokumen|default:''}" class="span6 validasi" type="text" />
 				</div>
 			</div>
+			*}
 			<div class="control-group">
-				<label class="control-label" for="form-field-1">Perihal</label>
+				<label class="control-label" for="form-field-1">Perihal / Judul Dokumen</label>
 				<div class="controls">
 					<input id="perihal" name="perihal" value="{$data.perihal|default:''}" class="span8 validasi" type="text" />
 				</div>
@@ -76,13 +78,13 @@
 	$('#existing_file').on('click', function(){
 		//alert($(this).attr('data'));
 		pdffile_url = $(this).attr('data');
-		html = '<iframe src="'+pdffile_url+'" frameborder="0" class="span12" scrolling="no" width="100%" height="600"></iframe>';
+		html = '<iframe src="'+pdffile_url+'" frameborder="0" class="span12" scrolling="no" width="100%" height="450"></iframe>';
 		$('#preview_file').html(html);
 	});
 	$('#filename').on('change', function(){
 		pdffile=document.getElementById("filename").files[0];
         pdffile_url=URL.createObjectURL(pdffile);
-        html = '<iframe src="'+pdffile_url+'" frameborder="0" class="span12" scrolling="no" width="100%" height="600"></iframe>';
+        html = '<iframe src="'+pdffile_url+'" frameborder="0" class="span12" scrolling="no" width="100%" height="450"></iframe>';
 		$('#preview_file').html(html);
 	});
 	$('#cancelMngFile').on('click', function(){
