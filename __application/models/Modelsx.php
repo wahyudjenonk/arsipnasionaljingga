@@ -12,6 +12,13 @@ class Modelsx extends CI_Model{
 			$where .=" AND ".$this->input->post('kat')." like '%".$this->db->escape_str($this->input->post('key'))."%'";
 		}
 		switch($type){
+			case "upload_file":
+				$sql="SELECT A.*,B.nama_unit,C.tipe_dokumen  
+						FROM tbl_upload_file A 
+						LEFT JOIN cl_unit_kerja B ON A.cl_unit_kerja_id=B.id
+						LEFT JOIN cl_jenis_dokumen C ON A.cl_jenis_dokumen_id=C.id 
+						WHERE A.id=".$this->input->post('id');
+			break;
 			case "total_dokumen_unit_kerja":
 				$sql = "
 					SELECT count(id) as jmlnya
@@ -281,8 +288,14 @@ class Modelsx extends CI_Model{
 				//print_r($data);exit;
 			break;
 			case "sharing":
-				//print_r($data);exit;
+				
 				$pilih=$data['pilihan'];
+				$tgl=$data['tanggal'];
+				$bagi=explode('-',$tgl);
+				$data['tgl_mulai']=str_replace('/','-',$bagi[0]);
+				$data['tgl_akhir']=str_replace('/','-',$bagi[1]);
+				//print_r($data);exit;
+				unset($data['tanggal']);
 				unset($data['pilihan']);
 				$data['create_date'] = date('Y-m-d H:i:s');
 				$data['create_by'] = $this->auth['nama_user'];

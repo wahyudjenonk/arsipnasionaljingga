@@ -712,8 +712,11 @@ function kumpulAction(type, p1, p2, p3, p4, p5){
 			} );
 		break;
 		case "sharing_file":
+			$('#grid_nya_upload_file').hide();
+			$('#detil_nya_upload_file').addClass('loading').html('').show();
 			$.post(host+'backoffice-getmodul/management_file/sharing_file', { id:p1 }, function(rsp){
-				windowForm(rsp, 'Lihat File Dokumen', 700, 500);
+				//windowForm(rsp, 'Lihat File Dokumen', 700, 500);
+				$('#detil_nya_upload_file').removeClass('loading').html(rsp);
 			});
 		break;
 		case "userrole":

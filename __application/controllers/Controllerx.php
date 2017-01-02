@@ -82,7 +82,8 @@ class Controllerx extends JINGGA_Controller {
 				case "management_file":
 					switch($p2){
 						case "sharing_file":
-							$data = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('id')) )->row_array();
+							//$data = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('id')) )->row_array();
+							$data=$this->modelsx->getdata('upload_file','row_array');
 							$unit = $this->modelsx->getdata('unit_sharing','result_array',$data['cl_unit_kerja_id'],$data['id']);
 							$this->nsmarty->assign("data", $data);
 							$this->nsmarty->assign("unit", $unit);

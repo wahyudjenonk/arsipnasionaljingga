@@ -8,22 +8,31 @@
 						<td colspan="6" style="text-align:center;font-weight:bold;">File Upload</td>
 					</tr>
 					<tr>
-						<td>Id Dokumen</td>
+						<td>ID Dokumen</td>
 						<td>:</td>
-						<td>{$data.id_dokumen|default:'-'}</td>
+						<td><b>{$data.id_dokumen|default:'-'}</b></td>
 						
 						<td>Tipe Dokumen</td>
 						<td>:</td>
-						<td>{$data.tipe_dokumen|default:'-'}</td>
+						<td><b>{$data.tipe_dokumen|default:'-'}</b></td>
 					</tr>
 					<tr>
 						<td>No. Dokumen</td>
 						<td>:</td>
-						<td>{$data.no_dokumen|default:'-'}</td>
+						<td><b>{$data.no_dokumen|default:'-'}</b></td>
 						
 						<td>Perihal</td>
 						<td>:</td>
-						<td>{$data.perihal|default:'-'}</td>
+						<td><b>{$data.perihal|default:'-'}</b></td>
+					</tr>
+					<tr>
+						<td>Tgl Upload</td>
+						<td>:</td>
+						<td><b>{$data.create_date|default:'-'}</b></td>
+						
+						<td>Pengirim</td>
+						<td>:</td>
+						<td><b>{$data.pengirim|default:'-'}</b></td>
 					</tr>
 				</tbody>
 			</table>
@@ -34,15 +43,55 @@
 		<input type="hidden" name="editstatus" value="add">
 		<div class="span12" style="width:97%">
 			<div class="control-group">
-				<label class="control-label" style="width:450px;">Daftar Unit Kerja Yang Akan Menerima File</label>
+				<label class="control-label" style="width:100%;">Daftar Unit Kerja Yang Akan Menerima File</label>
 				{if !empty($unit)}
+				{assign var=tot_data value=(count($unit)/2)+1|ceil}
+				{assign var=div1 value=0}
+				{assign var=div2 value=0}
+				
 				{foreach from=$unit item=i name=x}
-				<div class="controls">
-					<label>
-						<input name="pilihan[]" type="checkbox" value="{$i.id}" class="validasi cek" />
-						<span class="lbl" style="margin-left:6px;">{$i.nama_unit|default:'-'}</span>
-					</label>
-				</div>
+				{if count($unit) >= 2 }
+					
+					{if $smarty.foreach.x.iteration <= $tot_data}
+					{if $div1 eq 0}
+					<div class="span6">
+					{/if}
+					<div class="controls">
+						<label>
+							<input name="pilihan[]" type="checkbox" value="{$i.id}" class="validasi cek" />
+							<span class="lbl" style="margin-left:6px;">{$i.nama_unit|default:'-'}</span>
+						</label>
+					</div>
+					{if $div1 eq 0}
+					</div>
+					{assign var=div1 value=$smarty.foreach.x.iteration}
+					{/if}
+					{else}
+					{if $div2 eq 0}
+					<div class="span6">
+					{/if}
+					<div class="controls">
+						<label>
+							<input name="pilihan[]" type="checkbox" value="{$i.id}" class="validasi cek" />
+							<span class="lbl" style="margin-left:6px;">{$i.nama_unit|default:'-'}</span>
+						</label>
+					</div>
+					{if $div2 eq 0}
+					</div>
+					{assign var=div2 value=$smarty.foreach.x.iteration}
+					{/if}
+					{/if}
+				{else}
+					<div class="controls">
+						<label>
+							<input name="pilihan[]" type="checkbox" value="{$i.id}" class="validasi cek" />
+							<span class="lbl" style="margin-left:6px;">{$i.nama_unit|default:'-'}</span>
+						</label>
+					</div>
+				{/if}
+				
+				
+				
 				{/foreach}
 				{else}
 				<div class="controls">
@@ -54,7 +103,20 @@
 			</div>
 		</div>
 		<div class="span12" style="width:97%">
-			<table class="table table-hover">
+			<div class="row-fluid">
+				<label for="id-date-range-picker-1">Tanggal Sharing</label>
+			</div>
+
+			<div class="control-group">
+				<div class="row-fluid input-prepend">
+					<span class="add-on">
+						<i class="icon-calendar"></i>
+					</span>
+
+					<input class="span11 validasi" type="text" name="tanggal" id="tgl_{$acak}" />
+				</div>
+			</div>
+			<!--table class="table table-hover">
 				<tbody>
 					<tr>
 						<td>Tgl. Mulai</td>
@@ -66,7 +128,7 @@
 						<td><input type="text" id="tgl_akhir_{$acak}" name="tgl_akhir" value="" style="width:80%" class="validasi"></td>
 					</tr>
 				</tbody>
-			</table>
+			</table-->
 		</div>
 		</form>
 	</div>
@@ -84,8 +146,10 @@
 	</div>
 </div>
 <script>
-
-	$('#tgl_mulai_{$acak}').datebox({
+	$('#tgl_{$acak}').daterangepicker({ format: 'YYYY/MM/DD' }).prev().on(ace.click_event, function(){
+		$(this).next().focus();
+	});
+	/*$('#tgl_mulai_{$acak}').datebox({
 		formatter : formatDate,
         parser : parserDate,
 		value : today,
@@ -96,11 +160,13 @@
         parser : parserDate,
 		value : today,
 		required:true
-	});
+	});*/
 	$(".validasi").validatebox({ required:true }); 		
 	
 	$('#cancel_{$acak}').on('click', function(){
-		closeWindow();
+		//closeWindow();
+		$('#grid_nya_upload_file').show();
+		$('#detil_nya_upload_file').hide();
 	});
 	$('#share_{$acak}').on('click', function(){
 		if($(".cek").is(":checked")==false){
@@ -111,7 +177,9 @@
 				if(r == 1){
 					$.messager.alert('PGN Solution', "Sharing File Berhasil", 'info');
 					$('.info-empty').remove();
-					closeWindow();
+					//closeWindow();
+					$('#grid_nya_upload_file').show();
+					$('#detil_nya_upload_file').hide();
 				}else{
 					console.log(r);
 					$.messager.alert('PGN Solution', "Failed Save", 'error');
