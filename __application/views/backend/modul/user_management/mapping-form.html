@@ -10,7 +10,7 @@
 			<div style="float:{$align|default:'left'}; width:100%;">
 				<input type="text" name="key_{$acak}" id="key_{$acak}" style="width:70%;" placeholder="Cari Berdasarkan User">
 				&nbsp;&nbsp;&nbsp;
-				<a href="javascript:void(0)" style='margin-top:-10px' class="l-btn l-btn-small l-btn-plain" group="" id="" onClick="cariData('{$acak}');">
+				<a href="javascript:void(0)" style='margin-top:-10px' class="l-btn l-btn-small l-btn-plain" group="" id="carina_{$acak}" >
 					<span class="l-btn-left l-btn-icon-left">
 						<span class="l-btn-text">Find</span><span class="l-btn-icon icon-search">&nbsp;</span>
 					</span>
@@ -126,7 +126,64 @@
 <script>
 	{if $sts eq 'add'}
 		$('#span_na_{$acak}').css('height', (getClientHeight()-290));
-		genGrid('ldap_user','grid_ldap_{$acak}', '', '');
+		//genGrid('ldap_user','grid_ldap_{$acak}', '', '');
+		$("#grid_ldap_{$acak}").datagrid({
+			title:'',
+			
+			rownumbers:true,
+			iconCls:'database',
+			fit:true,
+			striped:true,
+			pagination:false,
+			remoteSort: false,
+			showFooter:false,
+			singleSelect:true,
+			url: host+'backoffice-Data/ldap_user',		
+			nowrap: false,
+			pageSize:10,
+			pageList:[10,20,30,40,50,75,100,200],
+			queryParams:{ },
+			
+			columns:[[
+				{ field:'samaccountname',title:'LDAP User',width:180, halign:'center',align:'left',
+					formatter:function(value,rowData,rowIndex){
+						if(value){ return value; }
+						else return rowData.cn;
+					}
+				},							
+				{ field:'displayname',title:'Nama',width:260, halign:'center',align:'left' }
+			]],
+			
+			onClickRow:function(rowIndex,rowData){
+				//if(modnya=='ldap_user'){
+					$('#user_ldap').val(rowData.samaccountname);
+					$('#user_na').html(rowData.samaccountname);
+					$('#nama_na').html(rowData.displayname);
+				//}
+			},
+			
+			toolbar: '#tb_ldap_user',
+			
+			onLoadSuccess: function(data){
+				if(data.total == 0){
+					var $panel = $(this).datagrid('getPanel');
+					var $info = '<div class="info-empty" style="margin-top:20%;">Data Tidak Tersedia</div>';
+					$($panel).find(".datagrid-view").append($info);
+				}else{
+					$($panel).find(".datagrid-view").append('');
+				}
+			},
+		});
+		$('#carina_{$acak}').bind('click',function(){
+			var post_search = {};
+			post_search['kat'] = $('#kat_{$acak}').val();
+			post_search['key'] = $('#key_{$acak}').val();
+			if($('#kat_{$acak}').val()!=''){
+				$("#grid_ldap_{$acak}").datagrid('reload',post_search);
+			}else{
+				$.messager.alert('Aldeaz Back-Office',"Pilih Kategori Pencarian",'error');
+			}
+		});
 	{/if}
 	$('#cancelMngFile').on('click', function(){
 		$('#detil_nya_{$mod}').html('');
