@@ -405,7 +405,7 @@ class Lib {
 		return preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
 	}	
 	
-	function get_ldap_user($mod="",$user="",$pwd=""){
+	function get_ldap_user($mod="",$user="",$pwd="",$group=""){
 		$ci =& get_instance();
 		//echo $user.$pwd;
 		$res=array();
@@ -423,9 +423,14 @@ class Lib {
 				
 				$ldap_fields=array("samaccountname","name","primarygroupid","displayname","distinguishedname","cn","description","memberof","userprincipalname");           
 				if($mod=='data_ldap'){
-					$result=@ldap_search($ldapconn,$ci->config->item("ldap_tree"), "(&(objectCategory=person)(samaccountname=$user))",$ldap_fields);
+					//(&(&(objectClass=user)(objectCategory=person))(memberOf=CN=IT,CN=Users,DC=goyz,DC=com))
+					$filter="(&(&(objectClass=user)(objectCategory=person))";
+					if($group!="")$filter .="(memberOf=CN=$group,CN=Users,".$ci->config->item("ldap_tree").")";
+					if($user!="")$filter .="(samaccountname=$user)";
+					$filter .=" )";
+					//echo $filter;
+					$result=@ldap_search($ldapconn,$ci->config->item("ldap_tree"), $filter,$ldap_fields);
 				}else if($mod=='login'){
-					
                     $result=ldap_search($ldapconn,$ci->config->item("ldap_tree"),"(&(objectCategory=person)(samaccountname=$user))");
 				}
 				$data=$this->konvert_array($ldapconn,$result);

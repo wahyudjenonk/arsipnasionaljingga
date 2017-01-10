@@ -253,6 +253,7 @@ class Controllerx extends JINGGA_Controller {
 	}
 	
 	function simpandata($p1="",$p2=""){
+		//print_r($_POST);exit;
 		if($this->input->post('mod'))$p1=$this->input->post('mod');
 		$post = array();
         foreach($_POST as $k=>$v){

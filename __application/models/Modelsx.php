@@ -48,8 +48,8 @@ class Modelsx extends CI_Model{
 						".$where;
 			break;
 			case "ldap_user":
-				if($this->input->post('key')){
-					$data=$this->lib->get_ldap_user("data_ldap",$this->input->post('key'));
+				if($this->input->post('key') || $this->input->post('group')){
+					$data=$this->lib->get_ldap_user("data_ldap",$this->input->post('key'),"",$this->input->post('group'));
 				}else{
 					$data=$this->lib->get_ldap_user("data_ldap");
 				}
@@ -268,9 +268,39 @@ class Modelsx extends CI_Model{
 			$id = $data['id'];
 			unset($data['id']);
 		}
-		
 		switch($table){
-			case "mapping": $table="tbl_ldap_group";break;
+			case "tbl_ldap_group": 
+				//echo "<pre>";print_r($data);exit;
+				if($sts_crud=='add'){
+					$dt=array();
+					foreach($data['user'] as $v){
+						$sql="SELECT * FROM tbl_ldap_group WHERE user_ldap='".$v['samaccountname']."'";
+						$ex=$this->db->query($sql)->row_array();
+						if(!isset($ex['user_ldap'])){
+							$dt[]=array('user_ldap'=>$v['samaccountname'],
+										'cl_group_user_id'=>$data['cl_group_user_id'],
+										'cl_unit_kerja_id'=>$data['cl_unit_kerja_id'],
+										'flag'=>'P',
+										'create_date'=>date('Y-m-d H:i:s'),
+										'create_by'=>$this->auth['nama_user'],
+							);
+						}
+					}
+					if(count($dt)>0)$this->db->insert_batch('tbl_ldap_group', $dt);
+				}else{
+					$this->db->update($table, $data, array('id' => $id) );	
+				}
+				if($this->db->trans_status() == false){
+					$this->db->trans_rollback();
+					return 'gagal';
+				}else{
+					 return $this->db->trans_commit();
+				}
+			break;
+			case "mapping": 
+				$table="tbl_ldap_group";
+				
+			break;
 			case "user_mng": $table="tbl_user"; break;
 			case "group": $table="cl_group_user"; break;
 			case "unit": $table="cl_unit_kerja"; break;
@@ -418,7 +448,8 @@ class Modelsx extends CI_Model{
 				$this->db->delete($table, array('id' => $id));
 			break;
 			case "req_delete":
-				$this->db->update($table, array('status_data'=>'RD'), array('id' => $id) );			
+				if($table=="tbl_ldap_group")$this->db->delete($table, array('id' => $id));
+				else $this->db->update($table, array('status_data'=>'RD'), array('id' => $id) );			
 			break;
 		}
 		
