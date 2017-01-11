@@ -4071,7 +4071,7 @@ button.btn:active {
 }
 
 .user-info {
-    max-width: 100px;
+    max-width: auto;
     display: inline-block;
     overflow: hidden;
     text-overflow: ellipsis;

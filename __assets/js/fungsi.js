@@ -306,12 +306,48 @@ function genGrid(modnya, divnya, lebarnya, tingginya, par1){
 				{field:'create_by',title:'Dibuat Oleh',width:150, halign:'center',align:'center'}
 			];
 		break;
+		case "advanced_search":
+			judulnya = "";
+			urlnya = "tbl_upload_file_advanced_search";
+			fitnya = true;
+			param=par1;
+			row_number=true;
+			nowrap_nya=false;
+			urlglobal = host+'backoffice-Data/'+urlnya;
+			frozen[modnya] = [
+				{field:'nama_file',title:'File Arsip',width:120, halign:'center',align:'center',
+					formatter:function(value,rowData,rowIndex){
+						return '<button href="javascript:void(0)" onClick="kumpulAction(\'lihatfile\',\''+rowData.nama_file+'\',\''+rowData.id+'\')" class="easyui-linkbutton" data-options="iconCls:\'icon-preview\'">Lihat File</button>';
+					}
+				},
+				/*
+				{field:'id',title:'Sharing',width:130, halign:'center',align:'center', hidden:(grp == 2 || grp == 4 ? false : true),
+					formatter:function(value,rowData,rowIndex){
+						return '<button href="javascript:void(0)" onClick="kumpulAction(\'sharing_file\',\''+rowData.id+'\')" class="easyui-linkbutton" data-options="iconCls:\'icon-preview\'">Sharing File</button>';
+					}
+				},
+				*/
+				{field:'no_dokumen',title:'No. Dokumen',width:150, halign:'center',align:'left'},
+			];
+			kolom[modnya] = [
+				
+				{field:'unit_kerja',title:'Unit Kerja',width:200, halign:'center',align:'left', hidden:(grp == 1 ? false : true)},				
+				{field:'tanggal_arsipnya',title:'Tanggal Arsip',width:150, halign:'center',align:'center'},				
+				{field:'tipe_dokumen',title:'Jenis Dokumen',width:150, halign:'center',align:'left'},				
+				{field:'perihal',title:'Perihal',width:300, halign:'center',align:'left'},				
+				{field:'pengirim',title:'Pengirim',width:300, halign:'center',align:'left'},				
+				
+				{field:'tanggal_upload',title:'Tanggal Upload',width:150, halign:'center',align:'center'},
+				{field:'create_by',title:'Petugas Input',width:150, halign:'center',align:'center'}
+			];		
+		break;
 		case "upload_file":
 			judulnya = "";
 			urlnya = "tbl_upload_file";
 			fitnya = true;
 			param=par1;
 			row_number=true;
+			nowrap_nya=false;
 			urlglobal = host+'backoffice-Data/'+urlnya;
 			frozen[modnya] = [
 				{field:'nama_file',title:'File Arsip',width:120, halign:'center',align:'center',
@@ -329,7 +365,8 @@ function genGrid(modnya, divnya, lebarnya, tingginya, par1){
 			kolom[modnya] = [
 				
 				{field:'unit_kerja',title:'Unit Kerja',width:200, halign:'center',align:'left', hidden:(grp == 1 ? false : true)},				
-				{field:'tipe_dokumen',title:'Jenis Dokumen',width:300, halign:'center',align:'left'},				
+				{field:'tanggal_arsipnya',title:'Tanggal Arsip',width:150, halign:'center',align:'center'},				
+				{field:'tipe_dokumen',title:'Jenis Dokumen',width:150, halign:'center',align:'left'},				
 				{field:'perihal',title:'Perihal',width:300, halign:'center',align:'left'},				
 				{field:'pengirim',title:'Pengirim',width:300, halign:'center',align:'left'},				
 				
@@ -501,6 +538,7 @@ function genGrid(modnya, divnya, lebarnya, tingginya, par1){
 				$($panel).find(".datagrid-view").append($info);
 			}else{
 				$($panel).find(".datagrid-view").append('');
+				$('.info-empty').remove();
 			}
 		},
 	});
@@ -549,6 +587,7 @@ function genform(type, modulnya, submodulnya, stswindow, tabel){
 		case "edit":
 		case "delete":		
 		case "req_delete":		
+		case "reject":		
 			var row = grid_nya.datagrid('getSelected');
 			if(row){
 				if(type=='edit'){
@@ -600,12 +639,29 @@ function genform(type, modulnya, submodulnya, stswindow, tabel){
 							$.post(urldelete, {'id':row.id, 'editstatus':'req_delete'}, function(r){
 								if(r==1){
 									winLoadingClose();
-									$.messager.alert('PGN Solution',"Data Terhapus",'info');
+									$.messager.alert('PGN Solution',"Request Hapus Data Terkirim",'info');
 									grid_nya.datagrid('reload');								
 								}else{
 									winLoadingClose();
 									console.log(r)
-									$.messager.alert('PGN Solution',"Gagal Menghapus Data",'error');
+									$.messager.alert('PGN Solution',"Gagal Request Hapus Data",'error');
+								}
+							});	
+						}
+					});	
+				}else if(type=='reject'){
+					$.messager.confirm('PGN Solution','Anda Yakin Untuk Menolak Request Hapus Data Ini ?',function(re){
+						if(re){
+							loadingna();
+							$.post(urldelete, {'id':row.id, 'editstatus':'reject'}, function(r){
+								if(r==1){
+									winLoadingClose();
+									$.messager.alert('PGN Solution',"Berhasil Mengembalikan Data",'info');
+									grid_nya.datagrid('reload');								
+								}else{
+									winLoadingClose();
+									console.log(r)
+									$.messager.alert('PGN Solution',"Gagal Mengembalikan Data",'error');
 								}
 							});	
 						}
@@ -669,6 +725,10 @@ function genTab(div, mod, tab_array, height_tab, width_tab){
 				$.post(urlnya,par,function(r){
 					$('#'+isi_tab.toLowerCase()).removeClass('loading').html(r);
 				});
+		},
+		onUnselect: function(title,index){
+			var isi_tab=title.replace(/ /g,"_");
+			$('#'+isi_tab.toLowerCase()).html('');
 		},
 		selected:0
 	});
@@ -890,16 +950,56 @@ function gen_editor(id){
 		tinyMCE.execCommand('mceAddControl', true, id);
 	
 }
-function cariData(acak){
+function cariData(divnya, table, acak){
 	var post_search = {};
-	post_search['kat'] = $('#kat_'+acak).val();
+	//post_search['kat'] = $('#kat_'+acak).val();
 	post_search['key'] = $('#key_'+acak).val();
+	post_search['table'] = table;
+	
+	$('#grid_'+divnya).datagrid('reload', post_search);
+
+	/*
 	if($('#kat_'+acak).val()!=''){
 		grid_nya.datagrid('reload',post_search);
 	}else{
 		$.messager.alert('Aldeaz Back-Office',"Pilih Kategori Pencarian",'error');
 	}
 	//$('#grid_'+typecari).datagrid('reload', post_search);
+	*/
+
+}
+
+function advancedSearch(divnya, table, acak, type){
+	var post_search = {};
+	
+	if(type == 'balikin'){
+		$('#no_dok_'+acak).val('');
+		$('#jns_dok_'+acak).val('');
+		$('#tgl_arsip_'+acak).val('');
+		$('#perihal_'+acak).val('');
+		$('#pengirim_'+acak).val('');
+	}else{
+		post_search['advanced_search'] = "advanced";
+		post_search['no_dokumen'] = $('#no_dok_'+acak).val();
+		post_search['jenis_dokumen'] = $('#jns_dok_'+acak).val();
+		post_search['tanggal_arsip'] = $('#tgl_arsip_'+acak).val();
+		post_search['perihal'] = $('#perihal_'+acak).val();
+		post_search['pengirim'] = $('#pengirim_'+acak).val();
+		post_search['table'] = table;
+	}
+	
+	$('#grid_'+divnya).datagrid('reload', post_search);
+	//$('#grid_'+divnya).datagrid('refreshRow');
+
+	/*
+	if($('#kat_'+acak).val()!=''){
+		grid_nya.datagrid('reload',post_search);
+	}else{
+		$.messager.alert('Aldeaz Back-Office',"Pilih Kategori Pencarian",'error');
+	}
+	//$('#grid_'+typecari).datagrid('reload', post_search);
+	*/
+
 }
 
 
