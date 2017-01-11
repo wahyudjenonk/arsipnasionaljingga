@@ -5,7 +5,7 @@
 </div>
 <div class="row-fluid">
 	<div class="span12">
-		<form class="form-horizontal" id='mngfile' name='frmMngFile' url="{$host}backoffice-simpan/tbl_upload_file" enctype="multipart/form-data" method="post">
+		<form class="form-horizontal" id='mngfile_{$acak}' name='frmMngFile' url="{$host}backoffice-simpan/tbl_upload_file" enctype="multipart/form-data" method="post">
 			<input type='hidden' name="editstatus" value="{$sts}" />
 			<input type='hidden' name="id" value="{$data.id|default:''}" />
 			
@@ -17,14 +17,13 @@
 					</select>
 				</div>
 			</div>
-			{*
+			
 			<div class="control-group">
 				<label class="control-label" for="form-field-1">No. Dokumen</label>
 				<div class="controls">
 					<input  id="no_dokumen" name="no_dokumen" value="{$data.no_dokumen|default:''}" class="span6 validasi" type="text" />
 				</div>
 			</div>
-			*}
 			<div class="control-group">
 				<label class="control-label" for="form-field-1">Perihal / Judul Dokumen</label>
 				<div class="controls">
@@ -34,7 +33,30 @@
 			<div class="control-group">
 				<label class="control-label" for="form-field-1">Pengirim</label>
 				<div class="controls">
-					<input id="pengirim" name="pengirim" value="{$data.pengirim|default:''}" class="span8 validasi" type="text" />
+					<select name='pengirim' class='validasi' id='pengirim' >
+						{$pengirim}
+					</select>
+				</div>
+			</div>
+			<div class="control-group" id='pengirim_unit_kerja' style="{$display_internal|default:''}">
+				<label class="control-label" for="form-field-1">Unit Kerja</label>
+				<div class="controls">
+					<select name='pengirim_internal_unit_kerja' class='' id='pengirim_internal_unit_kerja' >
+						{$unit_kerja}
+					</select>
+				</div>
+			</div>
+			<div class="control-group" id='pengirim_external_txt' style="{$display_external|default:''};">
+				<label class="control-label" for="form-field-1">Pengirim External</label>
+				<div class="controls">
+					<input id="pengirim_external" name="pengirim_external" value="{$data.pengirim_external|default:''}" class="span8" type="text" />
+				</div>
+			</div>
+
+			<div class="control-group">
+				<label class="control-label" for="form-field-1">Tanggal Dokumen</label>
+				<div class="controls">
+					<input name="tanggal_arsip" id="tanggal_arsip" value="{$data.tanggal_arsip|default:''}" class="span2 validasi" type="text" />
 				</div>
 			</div>
 			
@@ -67,11 +89,32 @@
 	</div>
 </div>
 <script>
+	/*
 	var tanggal_arsip = "{$data.tanggal_arsip|default:''}";
 	$('#tanggal_arsip').datebox({
 		formatter : formatDate,
         parser : parserDate,
 		value : tanggal_arsip
+	});
+	*/
+	$('#tanggal_arsip').datepicker({
+		format: 'yyyy-mm-dd',
+	});
+
+	$('#pengirim').on('change', function(){
+		if($(this).val()=='Internal'){
+			$('#pengirim_unit_kerja').show();
+			$('#pengirim_external_txt').hide();
+			
+			$('#pengirim_internal_unit_kerja').addClass('validasi');
+			$('#pengirim_external').removeClass('validasi');
+		}else if($(this).val()=='External'){
+			$('#pengirim_external_txt').show();
+			$('#pengirim_unit_kerja').hide();
+			
+			$('#pengirim_external').addClass('validasi');
+			$('#pengirim_internal_unit_kerja').removeClass('validasi');
+		}
 	});
 	
 	$(".validasi").validatebox({ required:true }); 		
@@ -99,8 +142,8 @@
 		}
 		*/
 		
-		validasi = $('#mngfile').form('validate');
-		submit_form('mngfile',function(r){
+		validasi = $('#mngfile_{$acak}').form('validate');
+		submit_form('mngfile_{$acak}',function(r){
 			if(r == 1){
 				$.messager.alert('PGN Solution', "Data Tersimpan", 'info');
 				$('.info-empty').remove();

@@ -48,7 +48,7 @@
 					<select name='cl_user_group_id' class='validasi' id='cl_user_group_id'  >
 						<option value="">-- PILIH GROUP --</option>
 						{foreach from=$group item=i}
-						<option value="{$i.id}" {if $data.cl_user_group_id eq $i.id}selected{/if}>{$i.group_user}</option>
+						<option value="{$i.id}" {if $data.cl_user_group_id|default:'' eq $i.id}selected{/if}>{$i.group_user}</option>
 						{/foreach}
 					</select>
 				</div>
@@ -59,7 +59,7 @@
 					<select name='cl_unit_kerja_id' class='validasi' id='cl_unit_kerja_id'  >
 						<option value="">-- PILIH UNIT --</option>
 						{foreach from=$unit item=i}
-						<option value="{$i.id}" {if $data.cl_unit_kerja_id eq $i.id}selected{/if}>{$i.nama_unit}</option>
+						<option value="{$i.id}" {if $data.cl_unit_kerja_id|default:'' eq $i.id}selected{/if}>{$i.nama_unit}</option>
 						{/foreach}
 					</select>
 				</div>

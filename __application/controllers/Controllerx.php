@@ -31,6 +31,9 @@ class Controllerx extends JINGGA_Controller {
 				case "beranda":
 					switch($p2){
 						case "main":
+							$this->nsmarty->assign('combo_bulan', $this->lib->fillcombo('bulan', 'return'));
+							$this->nsmarty->assign('combo_tahun', $this->lib->fillcombo('tahun', 'return'));
+						
 							if($this->auth['cl_user_group_id'] == 1){
 								$array_filter = array();
 							}elseif($this->auth['cl_user_group_id'] == 2){
@@ -53,6 +56,28 @@ class Controllerx extends JINGGA_Controller {
 							print_r($data_unit_kerja);exit;
 							//*/
 						break;
+						case "total_arsip":
+							$groupuser = $this->input->post('grp');
+							$data_total_dokumen = $this->modelsx->getdata('total_dokumen_unit_kerja', 'row_array', $groupuser);
+							
+							echo $data_total_dokumen['jmlnya'];
+							exit;
+						break;
+						case "total_arsip_html":
+							$data_unit_kerja = $this->db->get('cl_unit_kerja')->result_array();
+							foreach($data_unit_kerja as $k => $v){
+								$data_total_dokumen = $this->modelsx->getdata('total_dokumen_unit_kerja', 'row_array', $v['id']);
+								$data_unit_kerja[$k]['jumlah'] = $data_total_dokumen['jmlnya'];
+								unset($data_unit_kerja[$k]['keterangan']);
+								unset($data_unit_kerja[$k]['create_date']);
+								unset($data_unit_kerja[$k]['create_by']);
+							}
+							$this->nsmarty->assign('data_unit_kerja', $data_unit_kerja);
+							$html = $this->nsmarty->fetch('backend/modul/beranda/total_arsip.html');
+							
+							echo $html;
+							exit;
+						break;
 					}
 				break;
 				case "preview_file":
@@ -64,9 +89,15 @@ class Controllerx extends JINGGA_Controller {
 					}					
 					
 					$nama_file = $this->input->post('nama_file');
+					/*
 					$html = '
-						<iframe src="'.$target_path.$nama_file.'" frameborder="0"  scrolling="no" width="100%" height="550"></iframe>
+						<iframe id="framenya" src="'.$target_path.$nama_file.'#toolbar=0&navpanes=0&scrollbar=0" frameborder="0"  scrolling="no" width="100%" height="550"></iframe>
 					';
+					*/
+					$html = '
+						<object width="100%" height="550" type="application/pdf" data="'.$target_path.$nama_file.'?#zoom=85&scrollbar=0&toolbar=0&navpanes=0" id="pdf_content"><object>
+					';
+					
 					echo $html;
 					exit;
 				break;
@@ -76,6 +107,7 @@ class Controllerx extends JINGGA_Controller {
 					$html = '
 						<iframe src="'.$target_path.$nama_file.'" frameborder="0"  scrolling="no" width="100%" height="550"></iframe>
 					';
+					
 					echo $html;
 					exit;
 				break;
@@ -83,11 +115,15 @@ class Controllerx extends JINGGA_Controller {
 					switch($p2){
 						case "sharing_file":
 							//$data = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('id')) )->row_array();
-							$data=$this->modelsx->getdata('upload_file','row_array');
+							$data = $this->modelsx->getdata('upload_file','row_array');
 							$unit = $this->modelsx->getdata('unit_sharing','result_array',$data['cl_unit_kerja_id'],$data['id']);
 							$this->nsmarty->assign("data", $data);
 							$this->nsmarty->assign("unit", $unit);
 							//print_r($unit);
+						break;
+						case "advanced_search":
+							$this->nsmarty->assign("jenis_dokumen", $this->lib->fillcombo('cl_jenis_dokumen', 'return') );
+							$this->nsmarty->assign("pengirim", $this->lib->fillcombo('pengirim', 'return') );
 						break;
 					}
 				break;
@@ -186,8 +222,20 @@ class Controllerx extends JINGGA_Controller {
 						$target_path = "__repository/".$this->auth['cl_unit_kerja_id']."/";
 						$this->nsmarty->assign('filenya', $target_path.$data['nama_file']);
 					}
+					
+					if($data['pengirim'] == 'Internal'){
+						$this->nsmarty->assign("display_external", "display:none");
+					}else{
+						$this->nsmarty->assign("display_internal", "display:none");
+					}
+				}else{
+					$this->nsmarty->assign("display_external", "display:none");
+					$this->nsmarty->assign("display_internal", "display:none");
 				}
-				$this->nsmarty->assign("jenis_dokumen", $this->lib->fillcombo('cl_jenis_dokumen', 'return', ($sts == 'edit' ? $data['cl_tipe_dokumen_id'] : "") ) );
+				
+				$this->nsmarty->assign("jenis_dokumen", $this->lib->fillcombo('cl_jenis_dokumen', 'return', ($sts == 'edit' ? $data['cl_jenis_dokumen_id'] : "") ) );
+				$this->nsmarty->assign("pengirim", $this->lib->fillcombo('pengirim', 'return', ($sts == 'edit' ? $data['pengirim'] : "") ) );
+				$this->nsmarty->assign("unit_kerja", $this->lib->fillcombo('cl_unit_kerja', 'return', ($sts == 'edit' ? $data['pengirim_internal_unit_kerja'] : "") ) );
 			break;
 			case "mapping":
 				$temp='backend/modul/user_management/mapping-form.html';
@@ -208,6 +256,9 @@ class Controllerx extends JINGGA_Controller {
 				}
 				$unit=$this->modelsx->getdata('cl_unit_kerja','result_array');
 				$group=$this->modelsx->getdata('cl_group_user','result_array');
+				
+				//print_r($group);exit;
+				
 				$this->nsmarty->assign('group',$group);
 				$this->nsmarty->assign('unit',$unit);
 			break;

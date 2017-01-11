@@ -5,7 +5,7 @@
 			<table style="width:100%" class="table table-hover">
 				<tbody>
 					<tr>
-						<td colspan="6" style="text-align:center;font-weight:bold;">File Upload</td>
+						<td colspan="6" style="text-align:center;font-weight:bold;">Sharing File</td>
 					</tr>
 					<tr>
 						<td>ID Dokumen</td>
@@ -26,13 +26,17 @@
 						<td><b>{$data.perihal|default:'-'}</b></td>
 					</tr>
 					<tr>
-						<td>Tgl Upload</td>
+						<td>Tgl Arsip</td>
 						<td>:</td>
-						<td><b>{$data.create_date|default:'-'}</b></td>
+						<td><b>{$data.tanggal_arsip|date_format:"%d %b %Y"|default:'-'}</b></td>
 						
 						<td>Pengirim</td>
 						<td>:</td>
-						<td><b>{$data.pengirim|default:'-'}</b></td>
+						{if $data.pengirim eq 'Internal'}
+							<td><b>{$data.pengirim|default:'-'} - {$data.pengirim_internal|default:''}</b></td>
+						{else}
+							<td><b>{$data.pengirim|default:'-'} - {$data.pengirim_external|default:''}</b></td>
+						{/if}
 					</tr>
 				</tbody>
 			</table>
@@ -59,7 +63,7 @@
 					<div class="controls">
 						<label>
 							<input name="pilihan[]" type="checkbox" value="{$i.id}" class="validasi cek" />
-							<span class="lbl" style="margin-left:6px;">{$i.nama_unit|default:'-'}</span>
+							<span class="lbl" style="margin-left:6px;"> {$i.nama_unit|default:'-'}</span>
 						</label>
 					</div>
 					{if $div1 eq 0}
@@ -73,7 +77,7 @@
 					<div class="controls">
 						<label>
 							<input name="pilihan[]" type="checkbox" value="{$i.id}" class="validasi cek" />
-							<span class="lbl" style="margin-left:6px;">{$i.nama_unit|default:'-'}</span>
+							<span class="lbl" style="margin-left:6px;"> {$i.nama_unit|default:'-'}</span>
 						</label>
 					</div>
 					{if $div2 eq 0}
@@ -102,7 +106,8 @@
 				{/if}
 			</div>
 		</div>
-		<div class="span12" style="width:97%">
+		
+		<div class="span12" style="width:97%;margin-top:10px !important;">
 			<div class="row-fluid">
 				<label for="id-date-range-picker-1">Tanggal Sharing</label>
 			</div>

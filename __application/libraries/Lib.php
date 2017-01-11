@@ -263,10 +263,10 @@ class Lib {
 		
 		$optTemp = '<option value=""> -- Pilih -- </option>';
 		switch($type){
-			case "tipe_dokumen":
+			case "pengirim":
 				$data = array(
-					'0' => array('id'=>'PROJECT','txt'=>'PROJECT'),
-					'1' => array('id'=>'NON PROJECT','txt'=>'NON PROJECT'),
+					'0' => array('id'=>'Internal','txt'=>'Internal'),
+					'1' => array('id'=>'External','txt'=>'External'),
 				);
 			break;
 			case "jenis_kelamin":
@@ -281,6 +281,14 @@ class Lib {
 					'1' => array('id'=>'0','txt'=>'Tidak Aktif'),
 				);
 			break;
+			case "bulan" :
+				$data = $this->arraydate('bulan');
+				$optTemp = '<option value=""> -- Month -- </option>';
+			break;
+			case "tahun" :
+				$data = $this->arraydate('tahun');
+				$optTemp = '<option value=""> -- Year -- </option>';
+			break;			
 			default:
 				$data = $ci->modelsx->get_combo($type, $p1, $p2);
 			break;
@@ -322,7 +330,17 @@ class Lib {
 		$sql = $sql . " LIMIT $start,$limit";
 					
 		$data = $ci->db->query($sql)->result_array();  
-				
+		
+		if($type == 'tbl_upload_file'){
+			foreach($data as $k => $v){
+				if($data[$k]['pengirim'] == 'Internal'){
+					$data[$k]['pengirim'] = $v['pengirim']." - Divisi ".$v['pengirim_internal'];
+				}else{
+					$data[$k]['pengirim'] = $v['pengirim']." - ".$v['pengirim_external'];
+				}
+			}
+		}
+		
 		if($data){
 		   $responce = new stdClass();
 		   $responce->rows= $data;
@@ -494,4 +512,98 @@ class Lib {
 		return $data;
 		
 	}
+	
+	function arraydate($type=""){
+		switch($type){
+			case 'tanggal':
+				$data = array(
+					'0' => array('id'=>'1','txt'=>'1'),
+					'1' => array('id'=>'2','txt'=>'2'),
+					'2' => array('id'=>'3','txt'=>'3'),
+					'3' => array('id'=>'4','txt'=>'4'),
+					'4' => array('id'=>'5','txt'=>'5'),
+					'5' => array('id'=>'6','txt'=>'6'),
+					'6' => array('id'=>'7','txt'=>'7'),
+					'7' => array('id'=>'8','txt'=>'8'),
+					'8' => array('id'=>'9','txt'=>'9'),
+					'9' => array('id'=>'10','txt'=>'10'),
+					'10' => array('id'=>'11','txt'=>'11'),
+					'11' => array('id'=>'12','txt'=>'12'),
+					'12' => array('id'=>'13','txt'=>'13'),
+					'13' => array('id'=>'14','txt'=>'14'),
+					'14' => array('id'=>'15','txt'=>'15'),
+					'15' => array('id'=>'16','txt'=>'16'),
+					'16' => array('id'=>'17','txt'=>'17'),
+					'17' => array('id'=>'18','txt'=>'18'),
+					'18' => array('id'=>'19','txt'=>'19'),
+					'19' => array('id'=>'20','txt'=>'20'),
+					'20' => array('id'=>'21','txt'=>'21'),
+					'21' => array('id'=>'22','txt'=>'22'),
+					'22' => array('id'=>'23','txt'=>'23'),
+					'23' => array('id'=>'24','txt'=>'24'),
+					'24' => array('id'=>'25','txt'=>'25'),
+					'25' => array('id'=>'26','txt'=>'26'),
+					'26' => array('id'=>'27','txt'=>'27'),
+					'27' => array('id'=>'28','txt'=>'28'),
+					'28' => array('id'=>'29','txt'=>'29'),
+					'29' => array('id'=>'30','txt'=>'30'),
+					'30' => array('id'=>'31','txt'=>'31'),
+				);				
+			break;
+			case 'bulan':
+				$data = array(
+					'0' => array('id'=>'1','txt'=>'Januari'),
+					'1' => array('id'=>'2','txt'=>'Februari'),
+					'2' => array('id'=>'3','txt'=>'Maret'),
+					'3' => array('id'=>'4','txt'=>'April'),
+					'4' => array('id'=>'5','txt'=>'Mei'),
+					'5' => array('id'=>'6','txt'=>'Juni'),
+					'6' => array('id'=>'7','txt'=>'Juli'),
+					'7' => array('id'=>'8','txt'=>'Agustus'),
+					'8' => array('id'=>'9','txt'=>'September'),
+					'9' => array('id'=>'10','txt'=>'Oktober'),
+					'10' => array('id'=>'11','txt'=>'November'),
+					'11' => array('id'=>'12','txt'=>'Desember'),
+				);
+			break;
+			case 'bulan_singkat':
+				$data = array(
+					'0' => array('id'=>'1','txt'=>'Jan'),
+					'1' => array('id'=>'2','txt'=>'Feb'),
+					'2' => array('id'=>'3','txt'=>'Mar'),
+					'3' => array('id'=>'4','txt'=>'Apr'),
+					'4' => array('id'=>'5','txt'=>'Mei'),
+					'5' => array('id'=>'6','txt'=>'Jun'),
+					'6' => array('id'=>'7','txt'=>'Jul'),
+					'7' => array('id'=>'8','txt'=>'Ags'),
+					'8' => array('id'=>'9','txt'=>'Sept'),
+					'9' => array('id'=>'10','txt'=>'Okt'),
+					'10' => array('id'=>'11','txt'=>'Nov'),
+					'11' => array('id'=>'12','txt'=>'Des'),
+				);
+			break;
+			case 'tahun':
+				$data = array();
+				$year = date('Y');
+				$year_kurang = ($year-3);
+				$no = 0;
+				while($year >= $year_kurang ){
+					array_push($data, array('id' => $year, 'txt'=>$year));
+					$year--;
+				}
+			break;
+			case 'tahun_lahir':
+				$data = array();
+				$year = date('Y');
+				$no = 0;
+				while($year >= 1950){
+					array_push($data, array('id' => $year, 'txt'=>$year));
+					$year--;
+				}
+			break;
+		}
+		
+		return $data;
+	}
+	
 }

@@ -7,38 +7,111 @@ class Modelsx extends CI_Model{
 	}
 	
 	function getdata($type="", $balikan="", $p1="", $p2="",$p3="",$p4=""){
-		$where = " WHERE 1=1 ";
-		if($this->input->post('kat')){
-			$where .=" AND ".$this->input->post('kat')." like '%".$this->db->escape_str($this->input->post('key'))."%'";
+		$where  = " WHERE 1=1 ";
+		$where2 = "";
+		//$where .=" AND ".$this->input->post('kat')." like '%".$this->db->escape_str($this->input->post('key'))."%'";
+		if($this->input->post('key')){
+			$table = $this->input->post('table');
+			$key = $this->input->post('key');
+			if($table == "tbl_upload_file"){
+				if($this->auth['cl_unit_kerja_id'] == 1){
+					$where2 .= " B.nama_unit like '%".$key."%' OR ";
+				}
+
+				$where .= "
+					AND (
+						A.no_dokumen like '%".$key."%' OR
+						A.perihal like '%".$key."%' OR
+						A.pengirim like '%".$key."%' OR
+						$where2
+						C.tipe_dokumen like '%".$key."%'
+					)
+				";
+			}elseif($table == "tbl_sharing_file"){
+				$where .= "
+					AND (
+						B.no_dokumen like '%".$key."%' OR
+						B.perihal like '%".$key."%' OR
+						B.pengirim like '%".$key."%' OR
+						C.nama_unit like '%".$key."%' OR
+						D.tipe_dokumen like '%".$key."%'
+					)
+				";
+			}
 		}
+		
+		if($this->input->post('advanced_search')){
+			$no_dokumen = $this->input->post('no_dokumen');
+			$jenis_dokumen = $this->input->post('jenis_dokumen');
+			$tanggal_arsip = $this->input->post('tanggal_arsip');
+			$perihal = $this->input->post('perihal');
+			$pengirim = $this->input->post('pengirim');
+			
+			if($no_dokumen){
+				$where .= " AND A.no_dokumen like '%".$no_dokumen."%' ";
+			}
+			if($jenis_dokumen){
+				$where .= " AND A.cl_jenis_dokumen_id = '".$jenis_dokumen."' ";
+			}
+			if($tanggal_arsip){
+				$where .= " AND A.tanggal_arsip = '".$tanggal_arsip."' ";
+			}
+			if($perihal){
+				$where .= " AND A.perihal like '%".$perihal."%' ";
+			}
+			if($pengirim){
+				$where .= " AND A.pengirim = '".$pengirim."' ";
+			}
+		}else{
+			
+		}
+
+		$bulan_filter = $this->input->post('bulan_arsip');
+		$tahun_filter = $this->input->post('tahun_arsip');
+		
+		if($bulan_filter){
+			$where .= "
+				AND MONTH(A.tanggal_arsip) = '".$bulan_filter."' 
+			";
+		}
+		if($tahun_filter){
+			$where .= "
+				AND YEAR(A.tanggal_arsip) = '".$tahun_filter."' 
+			";
+		}		
+		
 		switch($type){
 			case "upload_file":
-				$sql="SELECT A.*,B.nama_unit,C.tipe_dokumen  
+				$sql="SELECT A.*, B.nama_unit, C.tipe_dokumen, D.nama_unit as pengirim_internal
 						FROM tbl_upload_file A 
 						LEFT JOIN cl_unit_kerja B ON A.cl_unit_kerja_id=B.id
 						LEFT JOIN cl_jenis_dokumen C ON A.cl_jenis_dokumen_id=C.id 
+						LEFT JOIN cl_unit_kerja D ON D.id = A.pengirim_internal_unit_kerja
 						WHERE A.id=".$this->input->post('id');
 			break;
 			case "total_dokumen_unit_kerja":
 				$sql = "
 					SELECT count(id) as jmlnya
-					FROM tbl_upload_file 
-					WHERE cl_unit_kerja_id = '".$p1."'
+					FROM tbl_upload_file A
+					$where AND A.cl_unit_kerja_id = '".$p1."'
 				";
 			break;
 			case "tbl_log":
 				$sql="SELECT * FROM tbl_log ".$where." ORDER BY create_date DESC ";
 			break;
 			case "chart_file":
-				$sql="SELECT A.nama_unit,
+				$sql="
+					SELECT A.nama_unit,
 					CASE WHEN B.total IS NULL THEN 0 ELSE B.total END AS total
 					FROM cl_unit_kerja A
 					LEFT JOIN(
 							SELECT B.nama_unit,COUNT(A.cl_unit_kerja_id)as total 
 							FROM tbl_upload_file A
 							LEFT JOIN cl_unit_kerja B ON A.cl_unit_kerja_id=B.id
+							$where
 							GROUP BY B.nama_unit
-					)AS B ON A.nama_unit=B.nama_unit ";
+					)AS B ON A.nama_unit=B.nama_unit 
+				";
 			break;
 			case "tbl_user":
 				$sql="SELECT A.*,B.group_user,C.nama_unit 
@@ -91,10 +164,14 @@ class Modelsx extends CI_Model{
 			case "unit_sharing":
 				$sql="SELECT * FROM cl_unit_kerja
 						WHERE id NOT IN(
-							SELECT cl_unit_id FROM tbl_sharing_file WHERE tbl_upload_file_id=".$p2."
-						) AND id <> ".$p1;
+							SELECT cl_unit_id 
+							FROM tbl_sharing_file 
+							WHERE tbl_upload_file_id=".$p2."
+							AND tgl_akhir >= NOW()
+						) AND id <> ".$p1;		
 			break;
 			case "tbl_upload_file":
+			case "tbl_upload_file_advanced_search":
 				if($this->input->post('request_delete')){
 					$where .= " AND A.status_data = 'RD' ";
 				}
@@ -106,12 +183,17 @@ class Modelsx extends CI_Model{
 				$sql = "
 					SELECT A.*, 
 						B.nama_unit as unit_kerja, DATE_FORMAT(A.create_date,'%d %b %y') as tanggal_upload,
-						C.tipe_dokumen
+						DATE_FORMAT(A.tanggal_arsip,'%d %b %y') as tanggal_arsipnya,
+						C.tipe_dokumen, D.nama_unit as pengirim_internal
 					FROM tbl_upload_file A
 					LEFT JOIN cl_unit_kerja B ON B.id = A.cl_unit_kerja_id
 					LEFT JOIN cl_jenis_dokumen C ON C.id = A.cl_jenis_dokumen_id
+					LEFT JOIN cl_unit_kerja D ON D.id = A.pengirim_internal_unit_kerja
 					$where
+					ORDER BY A.create_date DESC
 				";
+				
+				//echo $sql;exit;
 			break;
 			case "tbl_sharing_file":
 				$sql = "
@@ -121,7 +203,7 @@ class Modelsx extends CI_Model{
 					LEFT JOIN tbl_upload_file B ON B.id = A.tbl_upload_file_id
 					LEFT JOIN cl_unit_kerja C ON C.id = B.cl_unit_kerja_id
 					LEFT JOIN cl_jenis_dokumen D ON D.id = B.cl_jenis_dokumen_id
-					WHERE A.cl_unit_id = '".$this->auth['cl_unit_kerja_id']."' 
+					$where AND A.cl_unit_id = '".$this->auth['cl_unit_kerja_id']."' 
 					AND A.tgl_akhir >= NOW()
 				";
 			break;
@@ -230,7 +312,7 @@ class Modelsx extends CI_Model{
 		}
 		
 		if($balikan == 'json'){
-			return $this->lib->json_grid($sql);
+			return $this->lib->json_grid($sql,$type);
 		}elseif($balikan == 'row_array'){
 			return $this->db->query($sql)->row_array();
 		}elseif($balikan == 'result'){
@@ -360,7 +442,7 @@ class Modelsx extends CI_Model{
 						$idmax = date('Ym')."-00001";
 					}
 					$data['id_dokumen'] = $idmax;
-					$data['no_dokumen'] = $idmax;
+					//$data['no_dokumen'] = $idmax;
 					$namefilenya = $idmax;
 				}elseif($sts_crud == 'edit'){
 					$getdata = $this->db->get_where('tbl_upload_file', array('id'=>$id) )->row_array();
@@ -380,8 +462,6 @@ class Modelsx extends CI_Model{
 						$file_p = $namefilenya.strtoupper($filebersih);
 						$filename_p =  $this->lib->uploadnong($target_path, 'filename', $file_p); 
 						$data['nama_file'] = $filename_p;
-					}else{
-						$data['nama_file'] = null;
 					}
 				}
 				
@@ -450,6 +530,9 @@ class Modelsx extends CI_Model{
 			case "req_delete":
 				if($table=="tbl_ldap_group")$this->db->delete($table, array('id' => $id));
 				else $this->db->update($table, array('status_data'=>'RD'), array('id' => $id) );			
+			break;
+			case "reject":
+				$this->db->update($table, array('status_data'=>null), array('id' => $id) );			
 			break;
 		}
 		

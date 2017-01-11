@@ -18,6 +18,8 @@ $route['backoffice-simpan/(:any)'] = 'controllerx/simpandata/$1';
 $route['backoffice-getmodul/(:any)/(:any)'] = 'controllerx/modul/$1/$2';
 
 $route['beranda'] = 'controllerx/modul/beranda/main';
+$route['backoffice-gettotalarsip'] = 'controllerx/modul/beranda/total_arsip';
+$route['backoffice-gettotalarsiphtml'] = 'controllerx/modul/beranda/total_arsip_html';
 
 
 
