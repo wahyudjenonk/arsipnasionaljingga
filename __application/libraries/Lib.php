@@ -324,13 +324,25 @@ class Lib {
 		
 		if( $count >0 ) { $total_pages = ceil($count/$limit); } else { $total_pages = 0; } 
 		if ($page > $total_pages) $page=$total_pages; 
-		$start = $limit*$page - $limit; // do not put $limit*($page - 1)
+		/*$start = $limit*$page - $limit; // do not put $limit*($page - 1)
 		if($start<0) $start=0;
+		*/
+		$end = $page * $limit; 
+		$start = $end - $limit + 1;
+		if($start < 0) $start = 0;
 		 		
-		$sql = $sql . " LIMIT $start,$limit";
+		/*$sql = $sql . " LIMIT $start,$limit";
 					
 		$data = $ci->db->query($sql)->result_array();  
+		*/
 		
+		//POSTGRESSS
+		$sql = "
+				SELECT * FROM (
+					".$sql."
+				) AS X WHERE X.rowID BETWEEN $start AND $end
+			";
+		$data = $ci->db->query($sql)->result_array();  
 		if($type == 'tbl_upload_file'){
 			foreach($data as $k => $v){
 				if($data[$k]['pengirim'] == 'Internal'){
@@ -340,7 +352,6 @@ class Lib {
 				}
 			}
 		}
-		
 		if($data){
 		   $responce = new stdClass();
 		   $responce->rows= $data;
