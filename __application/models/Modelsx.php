@@ -97,7 +97,7 @@ class Modelsx extends CI_Model{
 				";
 			break;
 			case "tbl_log":
-				$sql="SELECT * FROM tbl_log ".$where." ORDER BY create_date DESC ";
+				$sql="SELECT ROW_NUMBER() OVER (ORDER BY A.id ASC) as rowID,A.* FROM tbl_log A ".$where." ORDER BY A.create_date DESC ";
 			break;
 			case "chart_file":
 				$sql="
@@ -114,7 +114,7 @@ class Modelsx extends CI_Model{
 				";
 			break;
 			case "tbl_user":
-				$sql="SELECT A.*,B.group_user,C.nama_unit 
+				$sql="SELECT ROW_NUMBER() OVER (ORDER BY A.id ASC) as rowID,A.*,B.group_user,C.nama_unit 
 						FROM tbl_user A 
 						LEFT JOIN cl_group_user B ON A.cl_user_group_id=B.id 
 						LEFT JOIN cl_unit_kerja C ON A.cl_unit_kerja_id=C.id 
@@ -149,7 +149,7 @@ class Modelsx extends CI_Model{
 				";
 			break;
 			case "tbl_ldap_group":
-				$sql="SELECT A.*,B.group_user as grp_user,C.nama_unit 
+				$sql="SELECT ROW_NUMBER() OVER (ORDER BY A.id ASC) as rowID,A.*,B.group_user as grp_user,C.nama_unit 
 					  FROM tbl_ldap_group A 
 					  LEFT JOIN cl_group_user B ON A.cl_group_user_id=B.id
 					  LEFT JOIN cl_unit_kerja C ON A.cl_unit_kerja_id=C.id 
@@ -180,25 +180,26 @@ class Modelsx extends CI_Model{
 					$where .= " AND A.cl_unit_kerja_id = '".$this->auth['cl_unit_kerja_id']."' ";
 				}
 				
+				
+				//POSTGRESSS 
 				$sql = "
-					SELECT A.*, 
-						B.nama_unit as unit_kerja, DATE_FORMAT(A.create_date,'%d %b %y') as tanggal_upload,
-						DATE_FORMAT(A.tanggal_arsip,'%d %b %y') as tanggal_arsipnya,
-						C.tipe_dokumen, D.nama_unit as pengirim_internal
+					SELECT ROW_NUMBER() OVER (ORDER BY A.id ASC) as rowID,A.*, 
+						B.nama_unit as unit_kerja, A.create_date as tanggal_upload,
+						C.tipe_dokumen
 					FROM tbl_upload_file A
 					LEFT JOIN cl_unit_kerja B ON B.id = A.cl_unit_kerja_id
 					LEFT JOIN cl_jenis_dokumen C ON C.id = A.cl_jenis_dokumen_id
-					LEFT JOIN cl_unit_kerja D ON D.id = A.pengirim_internal_unit_kerja
 					$where
 					ORDER BY A.create_date DESC
+
 				";
 				
 				//echo $sql;exit;
 			break;
 			case "tbl_sharing_file":
 				$sql = "
-					SELECT B.*, C.nama_unit, D.tipe_dokumen, 
-						DATEDIFF(A.tgl_akhir, NOW()) as time_limit
+					SELECT ROW_NUMBER() OVER (ORDER BY A.id ASC) as rowID,B.*, C.nama_unit, D.tipe_dokumen, 
+						DATE_PART('day',A.tgl_akhir::timestamp - NOW()::timestamp) as time_limit
 					FROM tbl_sharing_file A
 					LEFT JOIN tbl_upload_file B ON B.id = A.tbl_upload_file_id
 					LEFT JOIN cl_unit_kerja C ON C.id = B.cl_unit_kerja_id
@@ -215,7 +216,7 @@ class Modelsx extends CI_Model{
 						FROM tbl_user_prev_group a
 					LEFT JOIN tbl_user_menu b ON a.tbl_menu_id = b.id 
 					WHERE a.cl_user_group_id=".$this->auth['cl_user_group_id']." 
-					AND (b.type_menu='P' OR b.type_menu='PC') AND b.status=1
+					AND (b.type_menu='P' OR b.type_menu='PC') AND b.status='1'
 				";
 				$parent = $this->db->query($sql)->result_array();
 				$menu = array();
@@ -233,7 +234,7 @@ class Modelsx extends CI_Model{
 						LEFT JOIN tbl_user_menu b ON a.tbl_menu_id = b.id 
 						WHERE a.cl_user_group_id=".$this->auth['cl_user_group_id']." 
 						AND (b.type_menu = 'C' OR b.type_menu = 'CHC') 
-						AND b.status=1 AND b.parent_id=".$v['tbl_menu_id'];
+						AND b.status='1' AND b.parent_id=".$v['tbl_menu_id'];
 					$child = $this->db->query($sql)->result_array();
 					foreach($child as $x){
 						$menu[$v['tbl_menu_id']]['child'][$x['tbl_menu_id']]=array();
@@ -252,7 +253,7 @@ class Modelsx extends CI_Model{
 								WHERE a.cl_user_group_id=".$this->auth['cl_user_group_id']." 
 								AND b.type_menu = 'CC'
 								AND b.parent_id_2 = ".$x['tbl_menu_id']."
-								AND b.status=1 
+								AND b.status='1' 
 							";
 							$SubChild = $this->db->query($sqlSubChild)->result_array();
 							foreach($SubChild as $z){
@@ -306,7 +307,7 @@ class Modelsx extends CI_Model{
 			
 			default:
 				if($balikan=='get'){$where .=" AND A.id=".$this->input->post('id');}
-				$sql="SELECT A.* FROM ".$type." A ".$where;
+				$sql="SELECT ROW_NUMBER() OVER (ORDER BY A.id ASC) as rowID, A.* FROM ".$type." A ".$where;
 				if($balikan=='get')return $this->db->query($sql)->row_array();
 			break;
 		}
@@ -519,6 +520,8 @@ class Modelsx extends CI_Model{
 			case "add":
 				$data['create_date'] = date('Y-m-d H:i:s');
 				$data['create_by'] = $this->auth['nama_user'];
+				if(isset($data['id']) || $data['id']=='' ){unset($data['id']);}
+				//print_r($data);exit;
 				$this->db->insert($table,$data);
 			break;
 			case "edit":
