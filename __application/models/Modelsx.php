@@ -351,9 +351,14 @@ class Modelsx extends CI_Model{
 			$id = $data['id'];
 			unset($data['id']);
 		}
+		$log=array('create_date'=>date('Y-m-d H:i:s'),
+				   'create_by'=>$this->auth['nama_user']
+		);
+		$des_tbl="";
 		switch($table){
 			case "tbl_ldap_group": 
 				//echo "<pre>";print_r($data);exit;
+				$des_tbl="Data Konfigurasi LDAP Group dan Unit";
 				if($sts_crud=='add'){
 					$dt=array();
 					foreach($data['user'] as $v){
@@ -369,9 +374,21 @@ class Modelsx extends CI_Model{
 							);
 						}
 					}
-					if(count($dt)>0)$this->db->insert_batch('tbl_ldap_group', $dt);
+					if(count($dt)>0){
+						$this->db->insert_batch('tbl_ldap_group', $dt);
+						$log['aktivitas']="Insert ".$des_tbl;
+						$log['data_id']=0;
+						$log['flag_tbl']="tbl_ldap_group";
+						$this->db->insert('tbl_log', $log);
+					}
+					
 				}else{
+					
 					$this->db->update($table, $data, array('id' => $id) );	
+					$log['aktivitas']="Update ".$des_tbl;
+					$log['data_id']=$id;
+					$log['flag_tbl']="tbl_ldap_group";
+					$this->db->insert('tbl_log', $log);
 				}
 				if($this->db->trans_status() == false){
 					$this->db->trans_rollback();
@@ -412,10 +429,18 @@ class Modelsx extends CI_Model{
 				unset($data['pilihan']);
 				$data['create_date'] = date('Y-m-d H:i:s');
 				$data['create_by'] = $this->auth['nama_user'];
+				
+				$get_no_doc=$this->db->get_where('tbl_upload_file',array('id'=>$data['tbl_upload_file_id']))->row_array();
 				foreach($pilih as $x){
 					$data['cl_unit_id']=$x;
 					$this->db->insert('tbl_sharing_file',$data);
+					
+					$log['aktivitas']="Sharing File No.Doc <b>".$get_no_doc['no_dokumen']."</b> File Name <b>".$get_no_doc['nama_file']."</b>";
+					$log['data_id']=$this->db->insert_id();
+					$log['flag_tbl']="tbl_sharing_file";
+					$this->db->insert('tbl_log', $log);
 				}
+				
 				if($this->db->trans_status() == false){
 					$this->db->trans_rollback();
 					return 'gagal';
@@ -523,16 +548,45 @@ class Modelsx extends CI_Model{
 				if(isset($data['id']) || $data['id']=='' ){unset($data['id']);}
 				//print_r($data);exit;
 				$this->db->insert($table,$data);
+				if($table=='tbl_upload_file'){
+					$log['aktivitas']="Upload File No.Doc <b>".$data['no_dokumen']."</b> File Name <b>".$data['nama_file']."</b>";
+					$log['data_id']=$this->db->insert_id();
+					$log['flag_tbl']="tbl_upload_file";
+					$this->db->insert('tbl_log', $log);
+				}
+				
+				
 			break;
 			case "edit":
-				$this->db->update($table, $data, array('id' => $id) );				
+				$this->db->update($table, $data, array('id' => $id) );	
+				if($table=='tbl_upload_file'){
+					$log['aktivitas']="Update File No.Doc <b>".$data['no_dokumen']."</b> File Name <b>".$getdata['nama_file']."</b>";
+					$log['data_id']=$id;
+					$log['flag_tbl']="tbl_upload_file";
+					$this->db->insert('tbl_log', $log);
+				}				
 			break;
 			case "delete":
+				if($table=='tbl_upload_file'){
+					$get_no_doc=$this->db->get_where('tbl_upload_file',array('id'=>$id))->row_array();
+					$log['aktivitas']="Hapus File No.Doc <b>".$get_no_doc['no_dokumen']."</b> File Name <b>".$get_no_doc['nama_file']."</b>";
+					$log['data_id']=$id;
+					$log['flag_tbl']="tbl_upload_file";
+					$this->db->insert('tbl_log', $log);
+				}
 				$this->db->delete($table, array('id' => $id));
+				
 			break;
 			case "req_delete":
+				if($table=='tbl_upload_file'){
+					$get_no_doc=$this->db->get_where('tbl_upload_file',array('id'=>$id))->row_array();
+					$log['aktivitas']="Request Hapus File No.Doc <b>".$get_no_doc['no_dokumen']."</b> File Name <b>".$get_no_doc['nama_file']."</b>";
+					$log['data_id']=$id;
+					$log['flag_tbl']="tbl_upload_file";
+					$this->db->insert('tbl_log', $log);
+				}
 				if($table=="tbl_ldap_group")$this->db->delete($table, array('id' => $id));
-				else $this->db->update($table, array('status_data'=>'RD'), array('id' => $id) );			
+				else $this->db->update($table, array('status_data'=>'RD'), array('id' => $id) );	
 			break;
 			case "reject":
 				$this->db->update($table, array('status_data'=>null), array('id' => $id) );			

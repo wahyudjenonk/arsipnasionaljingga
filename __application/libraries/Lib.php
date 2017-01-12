@@ -346,7 +346,7 @@ class Lib {
 		if($type == 'tbl_upload_file'){
 			foreach($data as $k => $v){
 				if($data[$k]['pengirim'] == 'Internal'){
-					$data[$k]['pengirim'] = $v['pengirim']." - Divisi ".$v['pengirim_internal'];
+					$data[$k]['pengirim'] = $v['pengirim']." - Divisi ".$v['pengirim_internal_unit_kerja'];
 				}else{
 					$data[$k]['pengirim'] = $v['pengirim']." - ".$v['pengirim_external'];
 				}
