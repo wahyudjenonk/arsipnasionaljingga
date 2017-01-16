@@ -331,8 +331,8 @@ class Lib {
 		$start = $end - $limit + 1;
 		if($start < 0) $start = 0;
 		 		
-		/*$sql = $sql . " LIMIT $start,$limit";
-					
+		/*
+		$sql = $sql . " LIMIT $start,$limit";			
 		$data = $ci->db->query($sql)->result_array();  
 		*/
 		

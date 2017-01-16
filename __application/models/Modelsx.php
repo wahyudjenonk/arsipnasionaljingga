@@ -15,26 +15,26 @@ class Modelsx extends CI_Model{
 			$key = $this->input->post('key');
 			if($table == "tbl_upload_file"){
 				if($this->auth['cl_unit_kerja_id'] == 1){
-					$where2 .= " B.nama_unit like '%".$key."%' OR ";
+					$where2 .= " LOWER(B.nama_unit) like '%".strtolower($key)."%' OR ";
 				}
 
 				$where .= "
 					AND (
-						A.no_dokumen like '%".$key."%' OR
-						A.perihal like '%".$key."%' OR
-						A.pengirim like '%".$key."%' OR
+						LOWER(A.no_dokumen) like '%".strtolower($key)."%' OR
+						LOWER(A.perihal) like '%".strtolower($key)."%' OR
+						LOWER(A.pengirim) like '%".strtolower($key)."%' OR
 						$where2
-						C.tipe_dokumen like '%".$key."%'
+						LOWER(C.tipe_dokumen) like '%".strtolower($key)."%'
 					)
 				";
 			}elseif($table == "tbl_sharing_file"){
 				$where .= "
 					AND (
-						B.no_dokumen like '%".$key."%' OR
-						B.perihal like '%".$key."%' OR
-						B.pengirim like '%".$key."%' OR
-						C.nama_unit like '%".$key."%' OR
-						D.tipe_dokumen like '%".$key."%'
+						LOWER(B.no_dokumen) like '%".strtolower($key)."%' OR
+						LOWER(B.perihal) like '%".strtolower($key)."%' OR
+						LOWER(B.pengirim) like '%".strtolower($key)."%' OR
+						LOWER(C.nama_unit) like '%".strtolower($key)."%' OR
+						LOWER(D.tipe_dokumen) like '%".strtolower($key)."%'
 					)
 				";
 			}
@@ -48,7 +48,7 @@ class Modelsx extends CI_Model{
 			$pengirim = $this->input->post('pengirim');
 			
 			if($no_dokumen){
-				$where .= " AND A.no_dokumen like '%".$no_dokumen."%' ";
+				$where .= " AND LOWER(A.no_dokumen) like '%".strtolower($no_dokumen)."%' ";
 			}
 			if($jenis_dokumen){
 				$where .= " AND A.cl_jenis_dokumen_id = '".$jenis_dokumen."' ";
@@ -57,7 +57,7 @@ class Modelsx extends CI_Model{
 				$where .= " AND A.tanggal_arsip = '".$tanggal_arsip."' ";
 			}
 			if($perihal){
-				$where .= " AND A.perihal like '%".$perihal."%' ";
+				$where .= " AND LOWER(A.perihal) like '%".strtolower($perihal)."%' ";
 			}
 			if($pengirim){
 				$where .= " AND A.pengirim = '".$pengirim."' ";
@@ -71,13 +71,15 @@ class Modelsx extends CI_Model{
 		
 		if($bulan_filter){
 			$where .= "
-				AND MONTH(A.tanggal_arsip) = '".$bulan_filter."' 
+				AND EXTRACT(MONTH FROM A.tanggal_arsip) = '".$bulan_filter."'
 			";
+			//AND MONTH(A.tanggal_arsip) = '".$bulan_filter."' 
 		}
 		if($tahun_filter){
 			$where .= "
-				AND YEAR(A.tanggal_arsip) = '".$tahun_filter."' 
+				AND EXTRACT(YEAR FROM A.tanggal_arsip) = '".$tahun_filter."'
 			";
+			//AND YEAR(A.tanggal_arsip) = '".$tahun_filter."'
 		}		
 		
 		switch($type){
@@ -185,10 +187,12 @@ class Modelsx extends CI_Model{
 				$sql = "
 					SELECT ROW_NUMBER() OVER (ORDER BY A.id ASC) as rowID,A.*, 
 						B.nama_unit as unit_kerja, A.create_date as tanggal_upload,
-						C.tipe_dokumen
+						C.tipe_dokumen, D.nama_unit as pengirim_internal,
+						to_char(A.tanggal_arsip, 'DD Month YYYY') as tanggal_arsipnya
 					FROM tbl_upload_file A
 					LEFT JOIN cl_unit_kerja B ON B.id = A.cl_unit_kerja_id
 					LEFT JOIN cl_jenis_dokumen C ON C.id = A.cl_jenis_dokumen_id
+					LEFT JOIN cl_unit_kerja D ON D.id = A.pengirim_internal_unit_kerja
 					$where
 					ORDER BY A.create_date DESC
 
@@ -343,6 +347,45 @@ class Modelsx extends CI_Model{
 		}
 		
 		return $this->db->query($sql)->result_array();
+	}
+	
+	function getapi($type="", $p1="", $p2=""){
+		$where = " WHERE 1=1 ";
+		$per_page = (isset($p1['per_page']) || $p1['per_page'] != null ? $p1['per_page'] : 50);
+		$page = (isset($p1['page'])  || $p1['page'] != null ? $p1['page'] : 1);
+		$end = $page * $per_page; 
+		$start = $end - $per_page + 1;
+		if($start < 0) $start = 0;
+		
+		switch($type){
+			case "document_file":
+				if($p1['no_dokumen']){
+					$where .= " AND LOWER(A.no_dokumen) like '%".strtolower($p1['no_dokumen'])."%' ";
+				}
+				
+				if($p1['perihal']){
+					$where .= " AND LOWER(A.perihal) like '%".strtolower($p1['perihal'])."%' ";
+				}
+				
+				$sql = "
+					SELECT * FROM (
+						SELECT ROW_NUMBER() OVER (ORDER BY A.id ASC) as rowID,A.*, 
+							B.nama_unit as unit_kerja, A.create_date as tanggal_upload,
+							C.tipe_dokumen, D.nama_unit as pengirim_internal,
+							to_char(A.tanggal_arsip, 'DD Month YYYY') as tanggal_arsipnya,
+							to_char(A.create_date, 'DD Month YYYY') as tanggal_uploadnya
+						FROM tbl_upload_file A
+						LEFT JOIN cl_unit_kerja B ON B.id = A.cl_unit_kerja_id
+						LEFT JOIN cl_jenis_dokumen C ON C.id = A.cl_jenis_dokumen_id
+						LEFT JOIN cl_unit_kerja D ON D.id = A.pengirim_internal_unit_kerja
+						$where
+						ORDER BY A.create_date DESC
+					) AS X WHERE X.rowID BETWEEN $start AND $end
+				";
+			echo $sql;exit;
+				return $this->db->query($sql)->result_array();
+			break;
+		}
 	}
 	
 	function simpandata($table,$data,$sts_crud){ //$sts_crud --> STATUS NYEE INSERT, UPDATE, DELETE

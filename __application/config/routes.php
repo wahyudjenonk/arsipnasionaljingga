@@ -21,6 +21,8 @@ $route['beranda'] = 'controllerx/modul/beranda/main';
 $route['backoffice-gettotalarsip'] = 'controllerx/modul/beranda/total_arsip';
 $route['backoffice-gettotalarsiphtml'] = 'controllerx/modul/beranda/total_arsip_html';
 
+//password postgre = 12345 port:5432
+
 
 
 
