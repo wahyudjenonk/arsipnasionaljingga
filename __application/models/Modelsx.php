@@ -382,7 +382,7 @@ class Modelsx extends CI_Model{
 						ORDER BY A.create_date DESC
 					) AS X WHERE X.rowID BETWEEN $start AND $end
 				";
-			echo $sql;exit;
+			
 				return $this->db->query($sql)->result_array();
 			break;
 		}
