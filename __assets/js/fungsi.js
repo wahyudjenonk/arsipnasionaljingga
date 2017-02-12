@@ -330,12 +330,18 @@ function genGrid(modnya, divnya, lebarnya, tingginya, par1){
 				{field:'no_dokumen',title:'No. Dokumen',width:150, halign:'center',align:'left'},
 			];
 			kolom[modnya] = [
-				
 				{field:'unit_kerja',title:'Unit Kerja',width:200, halign:'center',align:'left', hidden:(grp == 1 ? false : true)},				
+				{field:'nama_area',title:'Nama Area',width:200, halign:'center',align:'center'},								
 				{field:'tanggal_arsipnya',title:'Tanggal Arsip',width:150, halign:'center',align:'center'},				
 				{field:'tipe_dokumen',title:'Jenis Dokumen',width:150, halign:'center',align:'left'},				
 				{field:'perihal',title:'Perihal',width:300, halign:'center',align:'left'},				
-				{field:'pengirim',title:'Pengirim',width:300, halign:'center',align:'left'},				
+				{field:'pengirim',title:'Pengirim',width:300, halign:'center',align:'left'},
+				{field:'para_pihak',title:'Para Pihak',width:200, halign:'center',align:'left'},				
+				{field:'nilai_kontrak',title:'Nilai Kontrak',width:200, halign:'center',align:'left'},				
+				{field:'vendor',title:'Vendor',width:200, halign:'center',align:'left'},				
+				{field:'pelanggan',title:'Pelanggan',width:250, halign:'center',align:'left'},				
+				{field:'jangka_waktu_mulainya',title:'Jangka Waktu Mulai',width:200, halign:'center',align:'center'},				
+				{field:'jangka_waktu_akhirnya',title:'Jangka Waktu Akhir',width:200, halign:'center',align:'center'},								
 				
 				{field:'tanggal_upload',title:'Tanggal Upload',width:150, halign:'center',align:'center'},
 				{field:'create_by',title:'Petugas Input',width:150, halign:'center',align:'center'}
@@ -355,7 +361,7 @@ function genGrid(modnya, divnya, lebarnya, tingginya, par1){
 						return '<button href="javascript:void(0)" onClick="kumpulAction(\'lihatfile\',\''+rowData.nama_file+'\',\''+rowData.id+'\')" class="easyui-linkbutton" data-options="iconCls:\'icon-preview\'">Lihat File</button>';
 					}
 				},
-				{field:'id',title:'Sharing',width:130, halign:'center',align:'center', hidden:(grp == 2 || grp == 4 ? false : true),
+				{field:'id',title:'Sharing',width:130, halign:'center',align:'center', hidden:( auth_sharing_file == 1 ? false : true),
 					formatter:function(value,rowData,rowIndex){
 						return '<button href="javascript:void(0)" onClick="kumpulAction(\'sharing_file\',\''+rowData.id+'\')" class="easyui-linkbutton" data-options="iconCls:\'icon-preview\'">Sharing File</button>';
 					}
@@ -365,10 +371,17 @@ function genGrid(modnya, divnya, lebarnya, tingginya, par1){
 			kolom[modnya] = [
 				
 				{field:'unit_kerja',title:'Unit Kerja',width:200, halign:'center',align:'left', hidden:(grp == 1 ? false : true)},				
+				{field:'nama_area',title:'Nama Area',width:200, halign:'center',align:'center'},				
 				{field:'tanggal_arsipnya',title:'Tanggal Arsip',width:150, halign:'center',align:'center'},				
 				{field:'tipe_dokumen',title:'Jenis Dokumen',width:150, halign:'center',align:'left'},				
 				{field:'perihal',title:'Perihal',width:300, halign:'center',align:'left'},				
 				{field:'pengirim',title:'Pengirim',width:300, halign:'center',align:'left'},				
+				{field:'para_pihak',title:'Para Pihak',width:200, halign:'center',align:'left'},				
+				{field:'nilai_kontrak',title:'Nilai Kontrak',width:200, halign:'center',align:'left'},				
+				{field:'vendor',title:'Vendor',width:200, halign:'center',align:'left'},				
+				{field:'pelanggan',title:'Pelanggan',width:250, halign:'center',align:'left'},				
+				{field:'jangka_waktu_mulainya',title:'Jangka Waktu Mulai',width:200, halign:'center',align:'center'},				
+				{field:'jangka_waktu_akhirnya',title:'Jangka Waktu Akhir',width:200, halign:'center',align:'center'},								
 				
 				{field:'tanggal_upload',title:'Tanggal Upload',width:150, halign:'center',align:'center'},
 				{field:'create_by',title:'Petugas Input',width:150, halign:'center',align:'center'}
