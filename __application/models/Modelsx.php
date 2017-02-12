@@ -558,6 +558,8 @@ class Modelsx extends CI_Model{
 				$data['jangka_waktu_mulai'] = str_replace('/','-',$bagi[0]);
 				$data['jangka_waktu_akhir'] = str_replace('/','-',$bagi[1]);
 				
+				$data['nilai_kontrak'] = str_replace('.','',$data['nilai_kontrak']);
+				
 				unset($data['jangka_waktu']);
 			break;
 			case "user_role_group":

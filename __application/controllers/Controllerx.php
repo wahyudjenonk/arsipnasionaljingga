@@ -85,7 +85,8 @@ class Controllerx extends JINGGA_Controller {
 					if($auth_sharing){
 						$this->nsmarty->assign("auth_sharing", $auth_sharing);
 					}
-
+					
+					/*
 					if($this->auth['cl_user_group_id'] == '1'){
 						$getdata = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('idx')) )->row_array();
 						//$target_path = $this->host."__repository/".$getdata['cl_unit_kerja_id']."/";
@@ -98,7 +99,12 @@ class Controllerx extends JINGGA_Controller {
 						//$target_path = $this->host."__repository/".$this->auth['cl_unit_kerja_id']."/";
 						$target_path = "__repository/".$this->auth['cl_unit_kerja_id']."/";
 					}					
-					
+					*/
+					$getdata = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('idx')) )->row_array();
+					$nama_area = $this->db->get_where("cl_area", array("id"=>$getdata['cl_area_id']) )->row_array();
+					$nama_folder = str_replace(" ", "_", strtolower($nama_area["nama_area"]) );
+					$target_path = "__repository/".$getdata['cl_unit_kerja_id']."/".$nama_folder."/";
+
 					$nama_file = $this->input->post('nama_file');
 					
 					/*
@@ -130,7 +136,11 @@ class Controllerx extends JINGGA_Controller {
 					exit;
 				break;
 				case "preview_file_sharing":
-					$target_path = $this->host."__repository/".$this->input->post('untkrj')."/";					
+					$getdata = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('idx')) )->row_array();
+					$nama_area = $this->db->get_where("cl_area", array("id"=>$getdata['cl_area_id']) )->row_array();
+					$nama_folder = str_replace(" ", "_", strtolower($nama_area["nama_area"]) );
+					
+					$target_path = $this->host."__repository/".$this->input->post('untkrj')."/".$nama_folder."/";					
 					$nama_file = $this->input->post('nama_file');
 					$html = '
 						<iframe src="'.$target_path.$nama_file.'" frameborder="0"  scrolling="no" width="100%" height="550"></iframe>
