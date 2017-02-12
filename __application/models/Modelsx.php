@@ -188,11 +188,15 @@ class Modelsx extends CI_Model{
 					SELECT ROW_NUMBER() OVER (ORDER BY A.id ASC) as rowID,A.*, 
 						B.nama_unit as unit_kerja, A.create_date as tanggal_upload,
 						C.tipe_dokumen, D.nama_unit as pengirim_internal,
-						to_char(A.tanggal_arsip, 'DD Month YYYY') as tanggal_arsipnya
+						to_char(A.tanggal_arsip, 'DD Month YYYY') as tanggal_arsipnya,
+						to_char(A.jangka_waktu_mulai, 'DD Month YYYY') as jangka_waktu_mulainya,
+						to_char(A.jangka_waktu_akhir, 'DD Month YYYY') as jangka_waktu_akhirnya,
+						E.nama_area
 					FROM tbl_upload_file A
 					LEFT JOIN cl_unit_kerja B ON B.id = A.cl_unit_kerja_id
 					LEFT JOIN cl_jenis_dokumen C ON C.id = A.cl_jenis_dokumen_id
 					LEFT JOIN cl_unit_kerja D ON D.id = A.pengirim_internal_unit_kerja
+					LEFT JOIN cl_area E ON E.id = A.cl_area_id
 					$where
 					ORDER BY A.create_date DESC
 
@@ -342,6 +346,12 @@ class Modelsx extends CI_Model{
 				$sql = "
 					SELECT id, tipe_dokumen as txt
 					FROM cl_jenis_dokumen
+				";
+			break;
+			case "cl_area":
+				$sql = "
+					SELECT id, nama_area as txt
+					FROM cl_area
 				";
 			break;
 		}
@@ -498,6 +508,13 @@ class Modelsx extends CI_Model{
 					mkdir($target_path, 0777);         
 				}
 				
+				$nama_area = $this->db->get_where("cl_area", array("id"=>$data['cl_area_id']) )->row_array();
+				$nama_folder = str_replace(" ", "_", strtolower($nama_area["nama_area"]) );
+				$target_path2 = $target_path.$nama_folder."/";
+				if(!is_dir($target_path2)) {
+					mkdir($target_path2, 0777);
+				}
+				
 				if($sts_crud == 'add'){
 					$sqlmax = "
 						SELECT MAX(id) as id_max
@@ -517,24 +534,31 @@ class Modelsx extends CI_Model{
 					$getdata = $this->db->get_where('tbl_upload_file', array('id'=>$id) )->row_array();
 					$namefilenya = $getdata['id_dokumen'];
 				}elseif($sts_crud == 'delete'){
-					if(file_exists($target_path.$data['nama_file'])){
-						unlink($target_path.$data['nama_file']);
+					if(file_exists($target_path2.$data['nama_file'])){
+						unlink($target_path2.$data['nama_file']);
 					}
 				}
 				
 				if(isset($_FILES['filename']['name'])){
 					if($_FILES['filename']['name'] != ''){	
 						if($sts_crud == 'edit'){
-							unlink($target_path.$getdata['nama_file']);
+							unlink($target_path2.$getdata['nama_file']);
 						}
 						$filebersih = $this->lib->clean(pathinfo($_FILES['filename']['name'], PATHINFO_FILENAME));
 						$file_p = $namefilenya.strtoupper($filebersih);
-						$filename_p =  $this->lib->uploadnong($target_path, 'filename', $file_p); 
+						$filename_p =  $this->lib->uploadnong($target_path2, 'filename', $file_p); 
 						$data['nama_file'] = $filename_p;
 					}
 				}
 				
 				$data['cl_unit_kerja_id'] = $this->auth['cl_unit_kerja_id'];
+				
+				$tgl = $data['jangka_waktu'];
+				$bagi = explode('-',$tgl);
+				$data['jangka_waktu_mulai'] = str_replace('/','-',$bagi[0]);
+				$data['jangka_waktu_akhir'] = str_replace('/','-',$bagi[1]);
+				
+				unset($data['jangka_waktu']);
 			break;
 			case "user_role_group":
 				$id_group = $id;
@@ -548,6 +572,8 @@ class Modelsx extends CI_Model{
 						$row["baca"]=0;
 						$row["ubah"]=0;
 						$row["hapus"]=0;
+						$row["sharing_file"]=0;
+						$row["download_file"]=0;
 						
 						switch($pecah[0]){
 							case "C":
@@ -562,6 +588,12 @@ class Modelsx extends CI_Model{
 							case "D":
 								$row["hapus"]=1;
 							break;
+							case "SH":
+								$row["sharing_file"]=1;
+							break;
+							case "DW":
+								$row["download_file"]=1;
+							break;
 						}
 						
 						$row["tbl_menu_id"] = $pecah[1];
@@ -575,6 +607,8 @@ class Modelsx extends CI_Model{
 							if($row["baca"]==0)unset($row["baca"]);
 							if($row["ubah"]==0)unset($row["ubah"]);
 							if($row["hapus"]==0)unset($row["hapus"]);
+							if($row["sharing_file"]==0)unset($row["sharing_file"]);
+							if($row["download_file"]==0)unset($row["download_file"]);
 							
 							$this->db->update('tbl_user_prev_group', $row, array('tbl_menu_id'=>$pecah[1], 'cl_user_group_id'=>$id_group) );
 						}

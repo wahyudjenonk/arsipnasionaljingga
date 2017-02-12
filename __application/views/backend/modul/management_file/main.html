@@ -1,8 +1,9 @@
 <div id="panel_{$main}" style="padding:5px;">
 	<div id="tab_{$main}"></div>
 </div>
-
 <script>
+	var auth_sharing_file = "{$auth_sharing.sharing_file|default:''}";
+	
 	$('#panel_{$main}').css('height', (getClientHeight()-115) );
 	if(grp == 4){
 		var tab_array=[

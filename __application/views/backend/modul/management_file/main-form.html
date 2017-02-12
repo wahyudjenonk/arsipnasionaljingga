@@ -10,6 +10,15 @@
 			<input type='hidden' name="id" value="{$data.id|default:''}" />
 			
 			<div class="control-group">
+				<label class="control-label" for="form-field-1">Area</label>
+				<div class="controls">
+					<select name='cl_area_id' class='validasi' id='cl_area_id' >
+						{$area}
+					</select>
+				</div>
+			</div>
+			
+			<div class="control-group">
 				<label class="control-label" for="form-field-1">Jenis Dokumen</label>
 				<div class="controls">
 					<select name='cl_jenis_dokumen_id' class='validasi' id='cl_jenis_dokumen_id' >
@@ -56,10 +65,54 @@
 			<div class="control-group">
 				<label class="control-label" for="form-field-1">Tanggal Dokumen</label>
 				<div class="controls">
-					<input name="tanggal_arsip" id="tanggal_arsip" value="{$data.tanggal_arsip|default:''}" class="span2 validasi" type="text" />
+					<div class="row-fluid input-prepend">
+						<span class="add-on">
+							<i class="icon-calendar"></i>
+						</span>
+						<input name="tanggal_arsip" id="tanggal_arsip" value="{$data.tanggal_arsip|default:''}" class="span2 validasi" type="text" />
+					</div>	
 				</div>
 			</div>
 			
+			<div class="control-group">
+				<label class="control-label" for="form-field-1">Para Pihak</label>
+				<div class="controls">
+					<input id="para_pihak" name="para_pihak" value="{$data.para_pihak|default:''}" class="span8 validasi" type="text" />
+				</div>
+			</div>			
+			
+			<div class="control-group">
+				<label class="control-label" for="form-field-1">Nilai Kontrak</label>
+				<div class="controls">
+					<input id="nilai_kontrak" name="nilai_kontrak" value="{$data.nilai_kontrak|default:''}" class="span8 validasi" type="text" />
+				</div>
+			</div>			
+			
+			<div class="control-group">
+				<label class="control-label" for="form-field-1">Vendor</label>
+				<div class="controls">
+					<input id="vendor" name="vendor" value="{$data.vendor|default:''}" class="span8 validasi" type="text" />
+				</div>
+			</div>		
+			
+			<div class="control-group">
+				<label class="control-label" for="form-field-1">Pelanggan</label>
+				<div class="controls">
+					<input id="pelanggan" name="pelanggan" value="{$data.pelanggan|default:''}" class="span8 validasi" type="text" />
+				</div>
+			</div>			
+			<div class="control-group">
+				<label class="control-label" for="form-field-1">Jangka Waktu</label>
+				<div class="controls">
+					<div class="row-fluid input-prepend">
+						<span class="add-on">
+							<i class="icon-calendar"></i>
+						</span>
+						<input class="span4 validasi" value="{$data.jangka_waktu|default:''}" type="text" name="jangka_waktu" id="jangkawaktu_{$acak}" />
+					</div>
+				</div>
+			</div>			
+						
 			<div class="control-group">
 				<label class="control-label" for="form-field-1">File Upload</label>
 				<div class="controls">
@@ -89,18 +142,24 @@
 	</div>
 </div>
 <script>
-	/*
-	var tanggal_arsip = "{$data.tanggal_arsip|default:''}";
-	$('#tanggal_arsip').datebox({
-		formatter : formatDate,
-        parser : parserDate,
-		value : tanggal_arsip
-	});
-	*/
+	var editstatus = "{$sts}";
+	
 	$('#tanggal_arsip').datepicker({
 		format: 'yyyy-mm-dd',
+	}).prev().on(ace.click_event, function(){
+		$(this).next().focus();
+	});	
+	
+	$('#jangkawaktu_{$acak}').daterangepicker({ format: 'YYYY/MM/DD' }).prev().on(ace.click_event, function(){
+		$(this).next().focus();
+	});	
+		
+	$("#nilai_kontrak").maskMoney({
+		precision:0,
+		thousands:'.'
 	});
 
+	
 	$('#pengirim').on('change', function(){
 		if($(this).val()=='Internal'){
 			$('#pengirim_unit_kerja').show();

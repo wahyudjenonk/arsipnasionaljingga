@@ -7,6 +7,8 @@
 				<td align='center'>Read</td>
 				<td align='center'>Update</td>
 				<td align='center'>Delete</td>
+				<td align='center'>Sharing File</td>
+				<td align='center'>Download File</td>
 			</tr>
 			
 			{foreach from=$role item=rows}
@@ -31,12 +33,25 @@
 					{assign var=stshapus value=''}
 				{/if}
 				
+				{if $rows.sharing_file eq 1}
+					{assign var=stssharing value='checked'}
+				{elseif $rows.sharing_file eq 0}
+					{assign var=stssharing value=''}
+				{/if}
+				{if $rows.download_file eq 1}
+					{assign var=stsdownload value='checked'}
+				{elseif $rows.download_file eq 0}
+					{assign var=stsdownload value=''}
+				{/if}
+				
 				<tr style='background:#F2F2F2; color:#333333; font-weight:bold;'>
 					<td style='padding-left:5px;'>{$rows.nama_menu}</td>
 					<td align='center'><input type="checkbox" class='cek_{$acak}' name="checkbuat[]" style='opacity:1 !important; position:unset !important;' data="C_{$rows.id}" {$stsbuat}></td>
 					<td align='center'><input type="checkbox" class='cek_{$acak}' name="checkbaca[]" style='opacity:1 !important; position:unset !important;'  data="R_{$rows.id}" {$stsbaca} ></td>
 					<td align='center'><input type="checkbox" class='cek_{$acak}' name="checkubah[]" style='opacity:1 !important; position:unset !important;' data="U_{$rows.id}" {$stsubah} ></td>
 					<td align='center'><input type="checkbox" class='cek_{$acak}' name="checkhapus[]" style='opacity:1 !important; position:unset !important;' data="D_{$rows.id}" {$stshapus} ></td>
+					<td align='center'><input type="checkbox" class='cek_{$acak}' name="checksharing_file[]" style='opacity:1 !important; position:unset !important;' data="SH_{$rows.id}" {$stssharing} ></td>
+					<td align='center'><input type="checkbox" class='cek_{$acak}' name="checkdownload_file[]" style='opacity:1 !important; position:unset !important;' data="DW_{$rows.id}" {$stsdownload} ></td>
 				</tr>
 				{foreach from=$rows.child_menu item=riws}
 					{if $riws.buat eq 1}
@@ -59,6 +74,17 @@
 					{elseif $riws.hapus eq 0}
 						{assign var=stshapusChild value=''}
 					{/if}
+					
+					{if $riws.sharing_file eq 1}
+						{assign var=stssharingChild value='checked'}
+					{elseif $riws.sharing_file eq 0}
+						{assign var=stssharingChild value=''}
+					{/if}
+					{if $riws.download_file eq 1}
+						{assign var=stsdownloadChild value='checked'}
+					{elseif $riws.download_file eq 0}
+						{assign var=stsdownloadChild value=''}
+					{/if}
 				
 					<tr style='background:#F2F2F2; color:#333333;'>
 						<td style='padding-left:15px;'>- {$riws.nama_menu_child}</td>
@@ -66,6 +92,8 @@
 						<td align='center'><input type="checkbox" class='cek_{$acak}' name="checkbaca[]" style='opacity:1 !important; position:unset !important;' data="R_{$riws.id_child}"{$stsbacaChild} ></td>
 						<td align='center'><input type="checkbox" class='cek_{$acak}' name="checkubah[]" style='opacity:1 !important; position:unset !important;' data="U_{$riws.id_child}"{$stsubahChild} ></td>
 						<td align='center'><input type="checkbox" class='cek_{$acak}' name="checkhapus[]" style='opacity:1 !important; position:unset !important;' data="D_{$riws.id_child}" {$stshapusChild} ></td>
+						<td align='center'><input type="checkbox" class='cek_{$acak}' name="checksharing_file[]" style='opacity:1 !important; position:unset !important;' data="SH_{$riws.id_child}" {$stssharingChild} ></td>
+						<td align='center'><input type="checkbox" class='cek_{$acak}' name="checkdownload_file[]" style='opacity:1 !important; position:unset !important;' data="DW_{$riws.id_child}" {$stsdownloadChild} ></td>
 					</tr>
 					
 					{if isset($riws.sub_child_menu) }
@@ -91,12 +119,25 @@
 								{assign var=stshapusSubChild value=''}
 							{/if}
 							
+							{if $ruws.sharing_file eq 1}
+								{assign var=stssharingSubChild value='checked'}
+							{elseif $ruws.sharing_file eq 0}
+								{assign var=stssharingSubChild value=''}
+							{/if}
+							{if $ruws.download_file eq 1}
+								{assign var=stsdownloadSubChild value='checked'}
+							{elseif $ruws.download_file eq 0}
+								{assign var=stsdownloadSubChild value=''}
+							{/if}
+							
 							<tr style='background:#EAEAEA; color:#333333;'>
 								<td style='padding-left:20px;'>+ {$ruws.nama_menu_sub_child}</td>
 								<td align='center'><input type="checkbox" class='cek_{$acak}' name="checkbuat[]" style='opacity:1 !important; position:unset !important;' data="C_{$ruws.id_sub_child}" {$stsbuatSubChild}></td>
 								<td align='center'><input type="checkbox" class='cek_{$acak}' name="checkbaca[]" style='opacity:1 !important; position:unset !important;' data="R_{$ruws.id_sub_child}"{$stsbacaSubChild} ></td>
 								<td align='center'><input type="checkbox" class='cek_{$acak}' name="checkubah[]" style='opacity:1 !important; position:unset !important;' data="U_{$ruws.id_sub_child}"{$stsubahSubChild} ></td>
 								<td align='center'><input type="checkbox" class='cek_{$acak}' name="checkhapus[]" style='opacity:1 !important; position:unset !important;' data="D_{$ruws.id_sub_child}" {$stshapusSubChild} ></td>
+								<td align='center'><input type="checkbox" class='cek_{$acak}' name="checksharing_file[]" style='opacity:1 !important; position:unset !important;' data="SH_{$ruws.id_sub_child}" {$stssharingSubChild} ></td>
+								<td align='center'><input type="checkbox" class='cek_{$acak}' name="checkdownload_file[]" style='opacity:1 !important; position:unset !important;' data="DW_{$ruws.id_sub_child}" {$stsdownloadSubChild} ></td>
 							</tr>
 						{/foreach}
 					{/if}

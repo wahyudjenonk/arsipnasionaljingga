@@ -350,6 +350,8 @@ class Lib {
 				}else{
 					$data[$k]['pengirim'] = $v['pengirim']." - ".$v['pengirim_external'];
 				}
+				
+				$data[$k]["nilai_kontrak"] = number_format($v["nilai_kontrak"],0,",",".");
 			}
 		}
 		if($data){

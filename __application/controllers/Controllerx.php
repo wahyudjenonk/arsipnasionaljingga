@@ -17,7 +17,7 @@ class Controllerx extends JINGGA_Controller {
 	
 	function index(){
 		if($this->auth){
-			$menu = $this->modelsx->getdata('menu', 'variable');
+			$menu = $this->modelsx->getdata('menu', 'variable');			
 			$this->nsmarty->assign('menu', $menu);
 			$this->nsmarty->display( 'backend/main-backend.html');
 		}else{
@@ -81,21 +81,49 @@ class Controllerx extends JINGGA_Controller {
 					}
 				break;
 				case "preview_file":
+					$auth_sharing = $this->db->get_where("tbl_user_prev_group", array("cl_user_group_id"=>$this->auth["cl_user_group_id"], "tbl_menu_id"=>"2") )->row_array();
+					if($auth_sharing){
+						$this->nsmarty->assign("auth_sharing", $auth_sharing);
+					}
+
 					if($this->auth['cl_user_group_id'] == '1'){
 						$getdata = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('idx')) )->row_array();
-						$target_path = $this->host."__repository/".$getdata['cl_unit_kerja_id']."/";
+						//$target_path = $this->host."__repository/".$getdata['cl_unit_kerja_id']."/";
+						
+						$nama_area = $this->db->get_where("cl_area", array("id"=>$getdata['cl_area_id']) )->row_array();
+						$nama_folder = str_replace(" ", "_", strtolower($nama_area["nama_area"]) );
+
+						$target_path = "__repository/".$getdata['cl_unit_kerja_id']."/".$nama_folder."/";
 					}else{
-						$target_path = $this->host."__repository/".$this->auth['cl_unit_kerja_id']."/";
+						//$target_path = $this->host."__repository/".$this->auth['cl_unit_kerja_id']."/";
+						$target_path = "__repository/".$this->auth['cl_unit_kerja_id']."/";
 					}					
 					
 					$nama_file = $this->input->post('nama_file');
+					
 					/*
 					$html = '
 						<iframe id="framenya" src="'.$target_path.$nama_file.'#toolbar=0&navpanes=0&scrollbar=0" frameborder="0"  scrolling="no" width="100%" height="550"></iframe>
 					';
-					*/
+					
 					$html = '
 						<object width="100%" height="550" type="application/pdf" data="'.$target_path.$nama_file.'?#zoom=85&scrollbar=0&toolbar=0&navpanes=0" id="pdf_content"><object>
+					';
+
+					$script = '
+						<script>
+							var kontel = $("#ifr").attr("src");
+						</script>
+					';
+					
+					$html = "
+						<iframe id='ifr' src='ViewerJS/#../".$target_path.$nama_file."' width='100%' height='550' allowfullscreen webkitallowfullscreen >
+						</iframe> 
+					";
+					*/
+					
+					$html = '
+						<iframe id="framenya" src="'.$target_path.$nama_file.'#toolbar=0&navpanes=0&scrollbar=0" frameborder="0"  scrolling="no" width="100%" height="550"></iframe>
 					';
 					
 					echo $html;
@@ -112,6 +140,11 @@ class Controllerx extends JINGGA_Controller {
 					exit;
 				break;
 				case "management_file":
+					$auth_sharing = $this->db->get_where("tbl_user_prev_group", array("cl_user_group_id"=>$this->auth["cl_user_group_id"], "tbl_menu_id"=>"2") )->row_array();
+					if($auth_sharing){
+						$this->nsmarty->assign("auth_sharing", $auth_sharing);
+					}
+					
 					switch($p2){
 						case "sharing_file":
 							//$data = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('id')) )->row_array();
@@ -144,6 +177,8 @@ class Controllerx extends JINGGA_Controller {
 								$array[$k]['baca'] = (isset($dataPrev['baca']) ? $dataPrev['baca'] : 0);
 								$array[$k]['ubah'] = (isset($dataPrev['ubah']) ? $dataPrev['ubah'] : 0);
 								$array[$k]['hapus'] = (isset($dataPrev['hapus']) ? $dataPrev['hapus'] : 0);
+								$array[$k]['sharing_file'] = (isset($dataPrev['sharing_file']) ? $dataPrev['sharing_file'] : 0);
+								$array[$k]['download_file'] = (isset($dataPrev['download_file']) ? $dataPrev['download_file'] : 0);
 								$array[$k]['child_menu'] = array();
 								$jml = 0;
 								foreach($dataChild as $y => $t){
@@ -156,6 +191,8 @@ class Controllerx extends JINGGA_Controller {
 									$array[$k]['child_menu'][$y]['baca'] = (isset($dataPrevChild['baca']) ? $dataPrevChild['baca'] : 0) ;
 									$array[$k]['child_menu'][$y]['ubah'] = (isset($dataPrevChild['ubah']) ? $dataPrevChild['ubah'] : 0) ;
 									$array[$k]['child_menu'][$y]['hapus'] = (isset($dataPrevChild['hapus']) ? $dataPrevChild['hapus'] : 0) ;
+									$array[$k]['child_menu'][$y]['sharing_file'] = (isset($dataPrevChild['sharing_file']) ? $dataPrevChild['sharing_file'] : 0) ;
+									$array[$k]['child_menu'][$y]['download_file'] = (isset($dataPrevChild['download_file']) ? $dataPrevChild['download_file'] : 0) ;
 									$jml++;
 									
 									if($t['type_menu'] == 'CHC'){
@@ -171,6 +208,8 @@ class Controllerx extends JINGGA_Controller {
 											$array[$k]['child_menu'][$y]['sub_child_menu'][$x]['baca'] = (isset($dataPrevSubChild['baca']) ? $dataPrevSubChild['baca'] : 0) ;
 											$array[$k]['child_menu'][$y]['sub_child_menu'][$x]['ubah'] = (isset($dataPrevSubChild['ubah']) ? $dataPrevSubChild['ubah'] : 0) ;
 											$array[$k]['child_menu'][$y]['sub_child_menu'][$x]['hapus'] = (isset($dataPrevSubChild['hapus']) ? $dataPrevSubChild['hapus'] : 0) ;
+											$array[$k]['child_menu'][$y]['sub_child_menu'][$x]['sharing_file'] = (isset($dataPrevSubChild['sharing_file']) ? $dataPrevSubChild['sharing_file'] : 0) ;
+											$array[$k]['child_menu'][$y]['sub_child_menu'][$x]['download_file'] = (isset($dataPrevSubChild['download_file']) ? $dataPrevSubChild['download_file'] : 0) ;
 											$jml_sub_child++;
 										}
 									}
@@ -217,9 +256,13 @@ class Controllerx extends JINGGA_Controller {
 				$temp="backend/modul/management_file/main-form.html";
 				if($sts=='edit'){
 					$data = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('id')) )->row_array();
+					$data["jangka_waktu"] = str_replace("-","/",$data["jangka_waktu_mulai"])." - ".str_replace("-","/",$data["jangka_waktu_akhir"]);
 					$this->nsmarty->assign('data',$data);
 					if($data['nama_file'] != null){
-						$target_path = "__repository/".$this->auth['cl_unit_kerja_id']."/";
+						$nama_area = $this->db->get_where("cl_area", array("id"=>$data['cl_area_id']) )->row_array();
+						$nama_folder = str_replace(" ", "_", strtolower($nama_area["nama_area"]) );
+						
+						$target_path = "__repository/".$this->auth['cl_unit_kerja_id']."/".$nama_folder."/";
 						$this->nsmarty->assign('filenya', $target_path.$data['nama_file']);
 					}
 					
@@ -233,6 +276,7 @@ class Controllerx extends JINGGA_Controller {
 					$this->nsmarty->assign("display_internal", "display:none");
 				}
 				
+				$this->nsmarty->assign("area", $this->lib->fillcombo('cl_area', 'return', ($sts == 'edit' ? $data['cl_area_id'] : "") ) );
 				$this->nsmarty->assign("jenis_dokumen", $this->lib->fillcombo('cl_jenis_dokumen', 'return', ($sts == 'edit' ? $data['cl_jenis_dokumen_id'] : "") ) );
 				$this->nsmarty->assign("pengirim", $this->lib->fillcombo('pengirim', 'return', ($sts == 'edit' ? $data['pengirim'] : "") ) );
 				$this->nsmarty->assign("unit_kerja", $this->lib->fillcombo('cl_unit_kerja', 'return', ($sts == 'edit' ? $data['pengirim_internal_unit_kerja'] : "") ) );
