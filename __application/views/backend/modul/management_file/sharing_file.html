@@ -54,50 +54,27 @@
 				{assign var=div2 value=0}
 				
 				{foreach from=$unit item=i name=x}
-				{if count($unit) >= 2 }
-					
-					{if $smarty.foreach.x.iteration <= $tot_data}
-						{if $div1 eq 0}
-							<div class="span6">
-						{/if}
-								<div class="controls">
-									<label style='width:200px'; >
-										<input name="pilihan[]" type="checkbox" value="{$i.id}" class="validasi cek" />
-										<span class="lbl" style="margin-left:6px;"> {$i.nama_unit|default:'-'}</span>
-									</label>
-								</div>
-						{if $div1 eq 0}
+				{if $smarty.foreach.x.iteration % 2 != 0}
+					<div class="span12">
+						<div class="span6">
+							<div class="controls">
+								<label style='width:200px';>
+									<input name="pilihan[]" type="checkbox" value="{$i.id}" class="validasi cek" />
+									<span class="lbl" style="margin-left:6px;">{$i.nama_unit|default:'-'}</span>
+								</label>
 							</div>
-							{assign var=div1 value=$smarty.foreach.x.iteration}
-						{/if}
-					{else}
-						{if $div2 eq 0}
-							<div class="span6">
-						{/if}
-								<div class="controls">
-									<label style='width:200px';>
-										<input name="pilihan[]" type="checkbox" value="{$i.id}" class="validasi cek" />
-										<span class="lbl" style="margin-left:6px;"> {$i.nama_unit|default:'-'}</span>
-									</label>
-								</div>
-						{if $div2 eq 0}
-							</div>
-							{assign var=div2 value=$smarty.foreach.x.iteration}
-						{/if}
-					{/if}
+						</div>
 				{else}
-					<div class="span6">
-						<div class="controls">
-							<label style='width:200px';>
-								<input name="pilihan[]" type="checkbox" value="{$i.id}" class="validasi cek" />
-								<span class="lbl" style="margin-left:6px;">{$i.nama_unit|default:'-'}</span>
-							</label>
+						<div class="span6">
+							<div class="controls">
+								<label style='width:200px';>
+									<input name="pilihan[]" type="checkbox" value="{$i.id}" class="validasi cek" />
+									<span class="lbl" style="margin-left:6px;">{$i.nama_unit|default:'-'}</span>
+								</label>
+							</div>
 						</div>
 					</div>
 				{/if}
-				
-				
-				
 				{/foreach}
 				{else}
 				<div class="controls">
@@ -106,6 +83,7 @@
 					</label>
 				</div>
 				{/if}
+				
 			</div>
 		</div>
 		
