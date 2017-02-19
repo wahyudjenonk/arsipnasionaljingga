@@ -7,12 +7,28 @@
 	&nbsp;&nbsp;&nbsp;
 	<label style='width:100px;'>Tanggal Arsip</label>
 	<input type="text" id="tgl_arsip_{$acak}" style="width:100px;">	
+	&nbsp;&nbsp;&nbsp;
+	<label style='width:83px;'>Vendor</label>
+	<input type="text" id="vendor_{$acak}" style="width:250px;">	
 	<br/>
 	<label style='width:100px;'>Perihal</label>
 	<input type="text" id="perihal_{$acak}" style="width:370px;">
 	&nbsp;&nbsp;&nbsp;
 	<label style='width:100px;'>Pengirim</label>
 	<select id='pengirim_{$acak}' style="width:115px;">{$pengirim}</select>
+	&nbsp;&nbsp;&nbsp;
+	<label style='width:80px;'>Pelanggan</label>
+	<input type="text" id="pelanggan_{$acak}" style="width:250px;">	
+	
+	<br/>
+	<label style='width:100px;'>Nilai Kontrak</label>
+	<input type="text" id="nilai_kontrak_{$acak}" style="width:120px;">	
+	&nbsp;&nbsp;&nbsp;
+	<label style='width:100px;'>Para Pihak</label>
+	<input type="text" id="para_pihak_{$acak}" style="width:200px;">	
+	&nbsp;&nbsp;&nbsp;
+	<label style='width:50px;'>Area</label>
+	<select id='area_{$acak}' style="width:150px;">{$area}</select>
 	
 	&nbsp;&nbsp;&nbsp;
 	<a href="javascript:void(0)" style='margin-top:-10px' id='search_adv' class="l-btn l-btn-small l-btn-plain" group="" onClick="advancedSearch('advanced_search', 'tbl_upload_file_advanced_search', '{$acak}');">
@@ -27,13 +43,18 @@
 		</span>
 	</a>	
 </div>	
-{include file="backend/template/grid-2.html" main="advanced_search" table='tbl_upload_file' height_grid="(getClientHeight()-246)"}
+{include file="backend/template/grid-2.html" main="advanced_search" table='tbl_upload_file' height_grid="(getClientHeight()-286)"}
 
 <script>
 	$('#tgl_arsip_{$acak}').datepicker({
 		format: 'yyyy-mm-dd',
 	});
 
+	$("#nilai_kontrak_{$acak}").maskMoney({
+		precision:0,
+		thousands:'.'
+	});
+	
 	$(document).keypress(function(e) {
 		if(e.which == 13) {
 			//advancedSearch('advanced_search', 'tbl_upload_file_advanced_search', '{$acak}');

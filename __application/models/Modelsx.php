@@ -47,6 +47,12 @@ class Modelsx extends CI_Model{
 			$perihal = $this->input->post('perihal');
 			$pengirim = $this->input->post('pengirim');
 			
+			$vendor = $this->input->post('vendor');
+			$pelanggan = $this->input->post('pelanggan');
+			$nilai_kontrak = $this->input->post('nilai_kontrak');
+			$para_pihak = $this->input->post('para_pihak');
+			$area = $this->input->post('area');
+			
 			if($no_dokumen){
 				$where .= " AND LOWER(A.no_dokumen) like '%".strtolower($no_dokumen)."%' ";
 			}
@@ -62,6 +68,24 @@ class Modelsx extends CI_Model{
 			if($pengirim){
 				$where .= " AND A.pengirim = '".$pengirim."' ";
 			}
+			
+			if($vendor){
+				$where .= " AND LOWER(A.vendor) like '%".strtolower($vendor)."%' ";
+			}
+			if($pelanggan){
+				$where .= " AND LOWER(A.pelanggan) like '%".strtolower($pelanggan)."%' ";
+			}
+			if($nilai_kontrak){
+				$nilai_kontrak = str_replace(".", "", $nilai_kontrak);
+				$where .= " AND A.nilai_kontrak = '".$nilai_kontrak."' ";
+			}
+			if($para_pihak){
+				$where .= " AND LOWER(A.para_pihak) like '%".strtolower($para_pihak)."%' ";
+			}
+			if($area){
+				$where .= " AND A.cl_area_id = '".$area."' ";
+			}
+			
 		}else{
 			
 		}

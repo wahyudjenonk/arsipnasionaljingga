@@ -82,71 +82,36 @@ class Controllerx extends JINGGA_Controller {
 				break;
 				case "preview_file":
 					$auth_sharing = $this->db->get_where("tbl_user_prev_group", array("cl_user_group_id"=>$this->auth["cl_user_group_id"], "tbl_menu_id"=>"2") )->row_array();
-					if($auth_sharing){
-						$this->nsmarty->assign("auth_sharing", $auth_sharing);
-					}
-					
-					/*
-					if($this->auth['cl_user_group_id'] == '1'){
-						$getdata = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('idx')) )->row_array();
-						//$target_path = $this->host."__repository/".$getdata['cl_unit_kerja_id']."/";
-						
-						$nama_area = $this->db->get_where("cl_area", array("id"=>$getdata['cl_area_id']) )->row_array();
-						$nama_folder = str_replace(" ", "_", strtolower($nama_area["nama_area"]) );
-
-						$target_path = "__repository/".$getdata['cl_unit_kerja_id']."/".$nama_folder."/";
+					if($auth_sharing["download_file"] == 1){
+						$this->nsmarty->assign("tinggi_iframe", "519");
+						$this->nsmarty->assign("button_download", "true");
 					}else{
-						//$target_path = $this->host."__repository/".$this->auth['cl_unit_kerja_id']."/";
-						$target_path = "__repository/".$this->auth['cl_unit_kerja_id']."/";
-					}					
-					*/
+						$this->nsmarty->assign("tinggi_iframe", "540");
+						$this->nsmarty->assign("button_download", "false");
+					}
+										
 					$getdata = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('idx')) )->row_array();
 					$nama_area = $this->db->get_where("cl_area", array("id"=>$getdata['cl_area_id']) )->row_array();
 					$nama_folder = str_replace(" ", "_", strtolower($nama_area["nama_area"]) );
 					$target_path = "__repository/".$getdata['cl_unit_kerja_id']."/".$nama_folder."/";
-
-					$nama_file = $this->input->post('nama_file');
+					$nama_file = $this->input->post('nama_file');					
 					
-					/*
-					$html = '
-						<iframe id="framenya" src="'.$target_path.$nama_file.'#toolbar=0&navpanes=0&scrollbar=0" frameborder="0"  scrolling="no" width="100%" height="550"></iframe>
-					';
-					
-					$html = '
-						<object width="100%" height="550" type="application/pdf" data="'.$target_path.$nama_file.'?#zoom=85&scrollbar=0&toolbar=0&navpanes=0" id="pdf_content"><object>
-					';
-
-					$script = '
-						<script>
-							var kontel = $("#ifr").attr("src");
-						</script>
-					';
-					
-					$html = "
-						<iframe id='ifr' src='ViewerJS/#../".$target_path.$nama_file."' width='100%' height='550' allowfullscreen webkitallowfullscreen >
-						</iframe> 
-					";
-					*/
-					
-					$html = '
-						<iframe id="framenya" src="'.$target_path.$nama_file.'#toolbar=0&navpanes=0&scrollbar=0" frameborder="0"  scrolling="no" width="100%" height="550"></iframe>
-					';
-					
-					echo $html;
+					$this->nsmarty->assign("filenya", $target_path.$nama_file);
+					$this->nsmarty->display("backend/modul/management_file/preview_file.html");
 					exit;
 				break;
 				case "preview_file_sharing":
+					$this->nsmarty->assign("tinggi_iframe", "540");
+					$this->nsmarty->assign("button_download", "false");
+					
 					$getdata = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('idx')) )->row_array();
 					$nama_area = $this->db->get_where("cl_area", array("id"=>$getdata['cl_area_id']) )->row_array();
 					$nama_folder = str_replace(" ", "_", strtolower($nama_area["nama_area"]) );
+					$target_path = "__repository/".$getdata['cl_unit_kerja_id']."/".$nama_folder."/";
+					$nama_file = $this->input->post('nama_file');					
 					
-					$target_path = $this->host."__repository/".$this->input->post('untkrj')."/".$nama_folder."/";					
-					$nama_file = $this->input->post('nama_file');
-					$html = '
-						<iframe src="'.$target_path.$nama_file.'" frameborder="0"  scrolling="no" width="100%" height="550"></iframe>
-					';
-					
-					echo $html;
+					$this->nsmarty->assign("filenya", $target_path.$nama_file);
+					$this->nsmarty->display("backend/modul/management_file/preview_file.html");
 					exit;
 				break;
 				case "management_file":
@@ -167,6 +132,7 @@ class Controllerx extends JINGGA_Controller {
 						case "advanced_search":
 							$this->nsmarty->assign("jenis_dokumen", $this->lib->fillcombo('cl_jenis_dokumen', 'return') );
 							$this->nsmarty->assign("pengirim", $this->lib->fillcombo('pengirim', 'return') );
+							$this->nsmarty->assign("area", $this->lib->fillcombo('cl_area', 'return' ) );
 						break;
 					}
 				break;
@@ -509,6 +475,12 @@ class Controllerx extends JINGGA_Controller {
 			break;
 		}
 		echo json_encode($chart);
+	}
+	
+	function downloadfile(){
+		$this->load->helper('download');
+		$filenya = $this->input->post("filenya");
+		force_download($filenya, NULL);
 	}
 	
 	function tester(){

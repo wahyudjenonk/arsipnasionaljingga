@@ -998,6 +998,12 @@ function advancedSearch(divnya, table, acak, type){
 		post_search['tanggal_arsip'] = $('#tgl_arsip_'+acak).val();
 		post_search['perihal'] = $('#perihal_'+acak).val();
 		post_search['pengirim'] = $('#pengirim_'+acak).val();
+		
+		post_search['vendor'] = $('#vendor_'+acak).val();
+		post_search['pelanggan'] = $('#pelanggan_'+acak).val();
+		post_search['nilai_kontrak'] = $('#nilai_kontrak_'+acak).val();
+		post_search['para_pihak'] = $('#para_pihak_'+acak).val();
+		post_search['area'] = $('#area_'+acak).val();
 		post_search['table'] = table;
 	}
 	
@@ -1158,4 +1164,33 @@ function myparser(s){
     } else {
         return new Date();
     }
+}
+
+function openWindowWithPostRequest(winURL, params) {
+  var winName='MyWindow';
+  //var winURL='search.action';
+  var windowoption='resizable=yes,height=600,width=800,location=0,menubar=0,scrollbars=1';
+  //var params = { 'param1' : '1','param2' :'2'};         
+  var form = document.createElement("form");
+  form.setAttribute("method", "post");
+  form.setAttribute("action", winURL);
+  form.setAttribute("target",winName);  
+  for (var i in params) {
+    if (params.hasOwnProperty(i)) {
+      var input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = i;
+      input.value = params[i];
+      form.appendChild(input);
+    }
+  }              
+  document.body.appendChild(form);                       
+  mywindow = window.open('', winName,windowoption);
+  form.target = winName;
+  form.submit();
+  document.body.removeChild(form); 
+	setTimeout(function() {
+		mywindow.close();
+    }, 60000);
+  
 }
