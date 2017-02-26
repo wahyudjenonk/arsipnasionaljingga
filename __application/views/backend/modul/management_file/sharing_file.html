@@ -45,9 +45,9 @@
 		<form id="FormShare_{$acak}" url="{$host}backoffice-simpan/sharing" enctype="multipart/form-data" method="post">
 		<input type="hidden" name="tbl_upload_file_id" value="{$data.id}">
 		<input type="hidden" name="editstatus" value="add">
-		<div class="span12" style="width:97%">
+		<div class="span12" style="width:90%">
 			<div class="control-group">
-				<label class="control-label" style="width:100%;">Daftar Unit Kerja Yang Akan Menerima File</label>
+				<label class="control-label" style="width:100%;font-weight:bold;">Daftar Unit Kerja Yang Akan Menerima File :</label>
 				{if !empty($unit)}
 				{assign var=tot_data value=(count($unit)/2)+1|ceil}
 				{assign var=div1 value=0}
@@ -58,18 +58,18 @@
 					<div class="span12">
 						<div class="span6">
 							<div class="controls">
-								<label style='width:200px';>
+								<label style='width:100%';>
 									<input name="pilihan[]" type="checkbox" value="{$i.id}" class="validasi cek" />
-									<span class="lbl" style="margin-left:6px;">{$i.nama_unit|default:'-'}</span>
+									<span class="lbl" style="margin-left:6px;"> {$i.nama_unit|default:'-'}</span>
 								</label>
 							</div>
 						</div>
 				{else}
 						<div class="span6">
 							<div class="controls">
-								<label style='width:200px';>
+								<label style='width:100%';>
 									<input name="pilihan[]" type="checkbox" value="{$i.id}" class="validasi cek" />
-									<span class="lbl" style="margin-left:6px;">{$i.nama_unit|default:'-'}</span>
+									<span class="lbl" style="margin-left:6px;"> {$i.nama_unit|default:'-'}</span>
 								</label>
 							</div>
 						</div>
@@ -86,10 +86,10 @@
 				
 			</div>
 		</div>
-		
+		<br/>
 		<div class="span12" style="width:97%;margin-top:10px !important;">
 			<div class="row-fluid">
-				<label for="id-date-range-picker-1">Tanggal Sharing</label>
+				<label for="id-date-range-picker-1" style="font-weight:bold;">Tanggal Sharing :</label>
 			</div>
 
 			<div class="control-group">
@@ -134,6 +134,7 @@
 	$('#tgl_{$acak}').daterangepicker({ format: 'YYYY/MM/DD' }).prev().on(ace.click_event, function(){
 		$(this).next().focus();
 	});
+	
 	/*$('#tgl_mulai_{$acak}').datebox({
 		formatter : formatDate,
         parser : parserDate,

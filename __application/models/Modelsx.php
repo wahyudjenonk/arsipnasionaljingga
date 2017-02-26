@@ -37,6 +37,40 @@ class Modelsx extends CI_Model{
 						LOWER(D.tipe_dokumen) like '%".strtolower($key)."%'
 					)
 				";
+			}elseif($table == "tbl_user"){
+				$where .= "
+					AND (
+						LOWER(A.nama_user) like '%".strtolower($key)."%' OR
+						LOWER(A.nama_lengkap) like '%".strtolower($key)."%' OR
+						LOWER(A.email) like '%".strtolower($key)."%'
+					)
+				";
+			}elseif($table == "cl_group_user"){
+				$where .= "
+					AND (
+						LOWER(A.group_user) like '%".strtolower($key)."%' OR
+						LOWER(A.keterangan) like '%".strtolower($key)."%'
+					)
+				";
+			}elseif($table == "cl_unit_kerja"){
+				$where .= "
+					AND (
+						LOWER(A.nama_unit) like '%".strtolower($key)."%' OR
+						LOWER(A.keterangan) like '%".strtolower($key)."%'
+					)
+				";
+			}elseif($table == "cl_area"){
+				$where .= "
+					AND (
+						LOWER(A.nama_area) like '%".strtolower($key)."%'
+					)
+				";
+			}elseif($table == "cl_jenis_dokumen"){
+				$where .= "
+					AND (
+						LOWER(A.tipe_dokumen) like '%".strtolower($key)."%'
+					)
+				";
 			}
 		}
 		
@@ -56,7 +90,7 @@ class Modelsx extends CI_Model{
 			if($no_dokumen){
 				$where .= " AND LOWER(A.no_dokumen) like '%".strtolower($no_dokumen)."%' ";
 			}
-			if($jenis_dokumen){
+			if($jenis_dokumen || $jenis_dokumen == "0"){
 				$where .= " AND A.cl_jenis_dokumen_id = '".$jenis_dokumen."' ";
 			}
 			if($tanggal_arsip){
@@ -121,6 +155,7 @@ class Modelsx extends CI_Model{
 					FROM tbl_upload_file A
 					$where AND A.cl_unit_kerja_id = '".$p1."'
 				";
+				//echo $sql;exit;
 			break;
 			case "tbl_log":
 				$sql="SELECT ROW_NUMBER() OVER (ORDER BY A.id ASC) as rowID,A.* FROM tbl_log A ".$where." ORDER BY A.create_date DESC ";
@@ -145,6 +180,8 @@ class Modelsx extends CI_Model{
 						LEFT JOIN cl_group_user B ON A.cl_user_group_id=B.id 
 						LEFT JOIN cl_unit_kerja C ON A.cl_unit_kerja_id=C.id 
 						".$where;
+						
+				//echo $sql;exit;
 			break;
 			case "ldap_user":
 				if($this->input->post('key') || $this->input->post('group')){
@@ -209,7 +246,7 @@ class Modelsx extends CI_Model{
 				
 				//POSTGRESSS 
 				$sql = "
-					SELECT ROW_NUMBER() OVER (ORDER BY A.id ASC) as rowID,A.*, 
+					SELECT ROW_NUMBER() OVER (ORDER BY A.id DESC) as rowID,A.*, 
 						B.nama_unit as unit_kerja, A.create_date as tanggal_upload,
 						C.tipe_dokumen, D.nama_unit as pengirim_internal,
 						to_char(A.tanggal_arsip, 'DD Month YYYY') as tanggal_arsipnya,
@@ -222,8 +259,7 @@ class Modelsx extends CI_Model{
 					LEFT JOIN cl_unit_kerja D ON D.id = A.pengirim_internal_unit_kerja
 					LEFT JOIN cl_area E ON E.id = A.cl_area_id
 					$where
-					ORDER BY A.create_date DESC
-
+					ORDER BY A.id DESC
 				";
 				
 				//echo $sql;exit;
@@ -231,7 +267,7 @@ class Modelsx extends CI_Model{
 			case "tbl_sharing_file":
 				$sql = "
 					SELECT ROW_NUMBER() OVER (ORDER BY A.id ASC) as rowID,B.*, C.nama_unit, D.tipe_dokumen, 
-						DATE_PART('day',A.tgl_akhir::timestamp - NOW()::timestamp) as time_limit
+						DATE_PART('day',A.tgl_akhir::timestamp - NOW()::timestamp) + 1 as time_limit
 					FROM tbl_sharing_file A
 					LEFT JOIN tbl_upload_file B ON B.id = A.tbl_upload_file_id
 					LEFT JOIN cl_unit_kerja C ON C.id = B.cl_unit_kerja_id
@@ -249,6 +285,7 @@ class Modelsx extends CI_Model{
 					LEFT JOIN tbl_user_menu b ON a.tbl_menu_id = b.id 
 					WHERE a.cl_user_group_id=".$this->auth['cl_user_group_id']." 
 					AND (b.type_menu='P' OR b.type_menu='PC') AND b.status='1'
+					ORDER BY b.id ASC
 				";
 				$parent = $this->db->query($sql)->result_array();
 				$menu = array();
@@ -266,7 +303,9 @@ class Modelsx extends CI_Model{
 						LEFT JOIN tbl_user_menu b ON a.tbl_menu_id = b.id 
 						WHERE a.cl_user_group_id=".$this->auth['cl_user_group_id']." 
 						AND (b.type_menu = 'C' OR b.type_menu = 'CHC') 
-						AND b.status='1' AND b.parent_id=".$v['tbl_menu_id'];
+						AND b.status='1' AND b.parent_id=".$v['tbl_menu_id']." 
+						ORDER BY b.id ASC
+						";
 					$child = $this->db->query($sql)->result_array();
 					foreach($child as $x){
 						$menu[$v['tbl_menu_id']]['child'][$x['tbl_menu_id']]=array();
@@ -286,6 +325,7 @@ class Modelsx extends CI_Model{
 								AND b.type_menu = 'CC'
 								AND b.parent_id_2 = ".$x['tbl_menu_id']."
 								AND b.status='1' 
+								ORDER BY b.id ASC
 							";
 							$SubChild = $this->db->query($sqlSubChild)->result_array();
 							foreach($SubChild as $z){
@@ -481,6 +521,8 @@ class Modelsx extends CI_Model{
 			case "user_mng": $table="tbl_user"; break;
 			case "group": $table="cl_group_user"; break;
 			case "unit": $table="cl_unit_kerja"; break;
+			case "area": $table="cl_area"; break;
+			case "jenisdokumen": $table="cl_jenis_dokumen"; break;
 			case "tbl_user":
 				if($sts_crud=='add'){
 					$cek_user=$this->db->get_where('tbl_user',array('nama_user'=>$data['nama_user']))->row_array();
@@ -532,12 +574,14 @@ class Modelsx extends CI_Model{
 					mkdir($target_path, 0777);         
 				}
 				
+				/*
 				$nama_area = $this->db->get_where("cl_area", array("id"=>$data['cl_area_id']) )->row_array();
 				$nama_folder = str_replace(" ", "_", strtolower($nama_area["nama_area"]) );
 				$target_path2 = $target_path.$nama_folder."/";
 				if(!is_dir($target_path2)) {
 					mkdir($target_path2, 0777);
 				}
+				*/
 				
 				if($sts_crud == 'add'){
 					$sqlmax = "
@@ -558,33 +602,32 @@ class Modelsx extends CI_Model{
 					$getdata = $this->db->get_where('tbl_upload_file', array('id'=>$id) )->row_array();
 					$namefilenya = $getdata['id_dokumen'];
 				}elseif($sts_crud == 'delete'){
-					if(file_exists($target_path2.$data['nama_file'])){
-						unlink($target_path2.$data['nama_file']);
+					if(file_exists($target_path.$data['nama_file'])){
+						unlink($target_path.$data['nama_file']);
 					}
 				}
 				
 				if(isset($_FILES['filename']['name'])){
 					if($_FILES['filename']['name'] != ''){	
 						if($sts_crud == 'edit'){
-							unlink($target_path2.$getdata['nama_file']);
+							unlink($target_path.$getdata['nama_file']);
 						}
 						$filebersih = $this->lib->clean(pathinfo($_FILES['filename']['name'], PATHINFO_FILENAME));
 						$file_p = $namefilenya.strtoupper($filebersih);
-						$filename_p =  $this->lib->uploadnong($target_path2, 'filename', $file_p); 
+						$filename_p =  $this->lib->uploadnong($target_path, 'filename', $file_p); 
 						$data['nama_file'] = $filename_p;
 					}
 				}
 				
-				$data['cl_unit_kerja_id'] = $this->auth['cl_unit_kerja_id'];
-				
-				$tgl = $data['jangka_waktu'];
-				$bagi = explode('-',$tgl);
-				$data['jangka_waktu_mulai'] = str_replace('/','-',$bagi[0]);
-				$data['jangka_waktu_akhir'] = str_replace('/','-',$bagi[1]);
-				
-				$data['nilai_kontrak'] = str_replace('.','',$data['nilai_kontrak']);
-				
-				unset($data['jangka_waktu']);
+				if($sts_crud == 'edit' || $sts_crud == 'add'){
+					$data['cl_unit_kerja_id'] = $this->auth['cl_unit_kerja_id'];
+					$tgl = $data['jangka_waktu'];
+					$bagi = explode('-',$tgl);
+					$data['jangka_waktu_mulai'] = str_replace('/','-',$bagi[0]);
+					$data['jangka_waktu_akhir'] = str_replace('/','-',$bagi[1]);
+					$data['nilai_kontrak'] = str_replace('.','',$data['nilai_kontrak']);
+					unset($data['jangka_waktu']);
+				}
 			break;
 			case "user_role_group":
 				$id_group = $id;

@@ -342,6 +342,7 @@ class Lib {
 					".$sql."
 				) AS X WHERE X.rowID BETWEEN $start AND $end
 			";
+				
 		$data = $ci->db->query($sql)->result_array();  
 		if($type == 'tbl_upload_file'){
 			foreach($data as $k => $v){

@@ -38,7 +38,7 @@ class Controllerx extends JINGGA_Controller {
 								$array_filter = array();
 							}elseif($this->auth['cl_user_group_id'] == 2){
 								$array_filter = array(
-									'id' => $this->auth['cl_user_group_id']
+									'id' => $this->auth['cl_unit_kerja_id']
 								);
 							}
 							$data_unit_kerja = $this->db->get_where('cl_unit_kerja', $array_filter)->result_array();
@@ -57,8 +57,8 @@ class Controllerx extends JINGGA_Controller {
 							//*/
 						break;
 						case "total_arsip":
-							$groupuser = $this->input->post('grp');
-							$data_total_dokumen = $this->modelsx->getdata('total_dokumen_unit_kerja', 'row_array', $groupuser);
+							$unitkerja = $this->auth['cl_unit_kerja_id']; //$this->input->post('grp');
+							$data_total_dokumen = $this->modelsx->getdata('total_dokumen_unit_kerja', 'row_array', $unitkerja);
 							
 							echo $data_total_dokumen['jmlnya'];
 							exit;
@@ -91,9 +91,10 @@ class Controllerx extends JINGGA_Controller {
 					}
 										
 					$getdata = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('idx')) )->row_array();
-					$nama_area = $this->db->get_where("cl_area", array("id"=>$getdata['cl_area_id']) )->row_array();
-					$nama_folder = str_replace(" ", "_", strtolower($nama_area["nama_area"]) );
-					$target_path = "__repository/".$getdata['cl_unit_kerja_id']."/".$nama_folder."/";
+					//$nama_area = $this->db->get_where("cl_area", array("id"=>$getdata['cl_area_id']) )->row_array();
+					//$nama_folder = str_replace(" ", "_", strtolower($nama_area["nama_area"]) );
+					//$target_path = "__repository/".$getdata['cl_unit_kerja_id']."/".$nama_folder."/";
+					$target_path = "__repository/".$getdata['cl_unit_kerja_id']."/";
 					$nama_file = $this->input->post('nama_file');					
 					
 					$this->nsmarty->assign("filenya", $target_path.$nama_file);
@@ -105,9 +106,10 @@ class Controllerx extends JINGGA_Controller {
 					$this->nsmarty->assign("button_download", "false");
 					
 					$getdata = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('idx')) )->row_array();
-					$nama_area = $this->db->get_where("cl_area", array("id"=>$getdata['cl_area_id']) )->row_array();
-					$nama_folder = str_replace(" ", "_", strtolower($nama_area["nama_area"]) );
-					$target_path = "__repository/".$getdata['cl_unit_kerja_id']."/".$nama_folder."/";
+					//$nama_area = $this->db->get_where("cl_area", array("id"=>$getdata['cl_area_id']) )->row_array();
+					//$nama_folder = str_replace(" ", "_", strtolower($nama_area["nama_area"]) );
+					//$target_path = "__repository/".$getdata['cl_unit_kerja_id']."/".$nama_folder."/";
+					$target_path = "__repository/".$getdata['cl_unit_kerja_id']."/";
 					$nama_file = $this->input->post('nama_file');					
 					
 					$this->nsmarty->assign("filenya", $target_path.$nama_file);
@@ -232,13 +234,19 @@ class Controllerx extends JINGGA_Controller {
 				$temp="backend/modul/management_file/main-form.html";
 				if($sts=='edit'){
 					$data = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('id')) )->row_array();
-					$data["jangka_waktu"] = str_replace("-","/",$data["jangka_waktu_mulai"])." - ".str_replace("-","/",$data["jangka_waktu_akhir"]);
+					if(!empty($data["jangka_waktu_mulai"]) && !empty($data["jangka_waktu_akhir"]) ){
+						$data["jangka_waktu"] = str_replace("-","/",$data["jangka_waktu_mulai"])." - ".str_replace("-","/",$data["jangka_waktu_akhir"]);
+					}else{
+						$data["jangka_waktu"] = null;
+					}
+					
 					$this->nsmarty->assign('data',$data);
 					if($data['nama_file'] != null){
-						$nama_area = $this->db->get_where("cl_area", array("id"=>$data['cl_area_id']) )->row_array();
-						$nama_folder = str_replace(" ", "_", strtolower($nama_area["nama_area"]) );
+						//$nama_area = $this->db->get_where("cl_area", array("id"=>$data['cl_area_id']) )->row_array();
+						//$nama_folder = str_replace(" ", "_", strtolower($nama_area["nama_area"]) );
+						//$target_path = "__repository/".$this->auth['cl_unit_kerja_id']."/".$nama_folder."/";
 						
-						$target_path = "__repository/".$this->auth['cl_unit_kerja_id']."/".$nama_folder."/";
+						$target_path = "__repository/".$this->auth['cl_unit_kerja_id']."/";
 						$this->nsmarty->assign('filenya', $target_path.$data['nama_file']);
 					}
 					
@@ -293,6 +301,20 @@ class Controllerx extends JINGGA_Controller {
 				$temp='backend/modul/user_management/unit-form.html';
 				if($sts=='edit'){
 					$data = $this->db->get_where('cl_unit_kerja', array('id'=>$this->input->post('id')) )->row_array();
+					$this->nsmarty->assign('data',$data);
+				}
+			break;
+			case "area":
+				$temp='backend/modul/user_management/area-form.html';
+				if($sts=='edit'){
+					$data = $this->db->get_where('cl_area', array('id'=>$this->input->post('id')) )->row_array();
+					$this->nsmarty->assign('data',$data);
+				}
+			break;
+			case "jenisdokumen":
+				$temp='backend/modul/user_management/jenisdokumen-form.html';
+				if($sts=='edit'){
+					$data = $this->db->get_where('cl_jenis_dokumen', array('id'=>$this->input->post('id')) )->row_array();
 					$this->nsmarty->assign('data',$data);
 				}
 			break;
