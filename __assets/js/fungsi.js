@@ -492,6 +492,29 @@ function genGrid(modnya, divnya, lebarnya, tingginya, par1){
 				{field:'displayname',title:'Nama',width:260, halign:'center',align:'left'}
 			];
 		break;
+		case "area":
+			judulnya = "";
+			urlnya = "cl_area";
+			fitnya = true;
+			param=par1;
+			row_number=true;
+			urlglobal = host+'backoffice-Data/'+urlnya;
+			kolom[modnya] = [
+				{field:'nama_area',title:'Unit Area',width:250, halign:'center',align:'left'},				
+			];
+		break;
+		case "jenisdokumen":
+			judulnya = "";
+			urlnya = "cl_jenis_dokumen";
+			fitnya = true;
+			param=par1;
+			row_number=true;
+			urlglobal = host+'backoffice-Data/'+urlnya;
+			kolom[modnya] = [
+				{field:'tipe_dokumen',title:'Tipe Dokumen',width:250, halign:'center',align:'left'},				
+			];
+		break;
+		
 	}
 	
 	grid_nya=$("#"+divnya).datagrid({
@@ -965,6 +988,27 @@ function gen_editor(id){
 }
 function cariData(divnya, table, acak){
 	var post_search = {};
+	
+	if(divnya == 'user_mng'){
+		table = "tbl_user";
+	}
+	
+	if(divnya == 'group'){
+		table = "cl_group_user";
+	}
+	
+	if(divnya == 'unit'){
+		table = "cl_unit_kerja";
+	}
+	
+	if(divnya == 'area'){
+		table = "cl_area";
+	}
+	
+	if(divnya == 'jenisdokumen'){
+		table = "cl_jenis_dokumen";
+	}
+	
 	//post_search['kat'] = $('#kat_'+acak).val();
 	post_search['key'] = $('#key_'+acak).val();
 	post_search['table'] = table;
