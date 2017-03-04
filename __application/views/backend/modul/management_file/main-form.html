@@ -10,15 +10,6 @@
 			<input type='hidden' name="id" value="{$data.id|default:''}" />
 			
 			<div class="control-group">
-				<label class="control-label" for="form-field-1">Area</label>
-				<div class="controls">
-					<select name='cl_area_id' class='validasi' id='cl_area_id' >
-						{$area}
-					</select>
-				</div>
-			</div>
-			
-			<div class="control-group">
 				<label class="control-label" for="form-field-1">Jenis Dokumen</label>
 				<div class="controls">
 					<select name='cl_jenis_dokumen_id' class='validasi' id='cl_jenis_dokumen_id' >
@@ -75,48 +66,63 @@
 			</div>
 			
 			<div class="control-group">
+				<label class="control-label" for="form-field-1">Area</label>
+				<div class="controls">
+					<select name='cl_area_id' class='' id='cl_area_id' >
+						{$area}
+					</select>
+					*) Optional
+				</div>
+			</div>			
+			
+			<div class="control-group">
 				<label class="control-label" for="form-field-1">Para Pihak</label>
 				<div class="controls">
-					<input id="para_pihak" name="para_pihak" value="{$data.para_pihak|default:''}" class="span8 validasi" type="text" />
+					<input id="para_pihak" name="para_pihak" value="{$data.para_pihak|default:''}" class="span8" type="text" />
+					*) Optional
 				</div>
 			</div>			
 			
 			<div class="control-group">
 				<label class="control-label" for="form-field-1">Nilai Kontrak</label>
 				<div class="controls">
-					<input id="nilai_kontrak" name="nilai_kontrak" value="{$data.nilai_kontrak|default:''}" class="span8 validasi" type="text" />
+					<input id="nilai_kontrak" name="nilai_kontrak" value="{$data.nilai_kontrak|default:''}" class="span8" type="text" />
+					*) Optional
 				</div>
 			</div>			
 			
 			<div class="control-group">
 				<label class="control-label" for="form-field-1">Vendor</label>
 				<div class="controls">
-					<input id="vendor" name="vendor" value="{$data.vendor|default:''}" class="span8 validasi" type="text" />
+					<input id="vendor" name="vendor" value="{$data.vendor|default:''}" class="span8" type="text" />
+					*) Optional
 				</div>
 			</div>		
 			
 			<div class="control-group">
 				<label class="control-label" for="form-field-1">Pelanggan</label>
 				<div class="controls">
-					<input id="pelanggan" name="pelanggan" value="{$data.pelanggan|default:''}" class="span8 validasi" type="text" />
+					<input id="pelanggan" name="pelanggan" value="{$data.pelanggan|default:''}" class="span8" type="text" />
+					*) Optional
 				</div>
 			</div>			
 			<div class="control-group">
 				<label class="control-label" for="form-field-1">Jangka Waktu</label>
 				<div class="controls">
-					<div class="row-fluid input-prepend">
+					<div class="input-prepend">
 						<span class="add-on">
 							<i class="icon-calendar"></i>
 						</span>
-						<input class="span4 validasi" value="{$data.jangka_waktu|default:''}" type="text" name="jangka_waktu" id="jangkawaktu_{$acak}" />
+						<input class="span10" value="{$data.jangka_waktu|default:''}" type="text" name="jangka_waktu" id="jangkawaktu_{$acak}" />
 					</div>
+					*) Optional
 				</div>
 			</div>			
 						
 			<div class="control-group">
 				<label class="control-label" for="form-field-1">File Upload</label>
 				<div class="controls">
-					<input type='file' name="filename" id="filename" style='border: 1px solid #ccc;'/> 
+					<input type='file' class="span6" name="filename" id="filename" style='border: 1px solid #ccc;'/> 
 					&nbsp;&nbsp;
 					{if $data.nama_file|default:'' neq null}
 						<a href='javascript:void(0);' id='existing_file' title='Klik Untuk Melihat File' data='{$filenya}'>{$data.nama_file}</a>
@@ -176,6 +182,10 @@
 		}
 	});
 	
+	$('#no_dokumen').keyup(function(){
+		$(this).val($(this).val().toUpperCase());
+	});	
+	
 	$(".validasi").validatebox({ required:true }); 		
 	$('#existing_file').on('click', function(){
 		//alert($(this).attr('data'));
@@ -206,14 +216,21 @@
 			if(r == 1){
 				$.messager.alert('PGN Solution', "Data Tersimpan", 'info');
 				$('.info-empty').remove();
+				$('#detil_nya_{$mod}').html('');
+				$('#grid_nya_{$mod}').show();
+				$('#detilnya_nya_{$mod}').hide();
+				$('#grid_{$mod}').datagrid('reload');			
+			}else if(r == 3){
+				$.messager.alert('PGN Solution', "No Dokumen Sudah Ada Dalam Sistem!", 'error');
+				$("#no_dokumen").focus();
 			}else{
-				$.messager.alert('PGN Solution', "Failed Save", 'error');
+				$.messager.alert('PGN Solution', "Gagal Menyimpan Data", 'error');
+				$('#detil_nya_{$mod}').html('');
+				$('#grid_nya_{$mod}').show();
+				$('#detilnya_nya_{$mod}').hide();
+				$('#grid_{$mod}').datagrid('reload');
 			}
 			
-			$('#detil_nya_{$mod}').html('');
-			$('#grid_nya_{$mod}').show();
-			$('#detilnya_nya_{$mod}').hide();
-			$('#grid_{$mod}').datagrid('reload');
 		});
 		return false;
 	});

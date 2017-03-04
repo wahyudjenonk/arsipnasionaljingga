@@ -10,6 +10,7 @@
 			<div style="float:{$align|default:'left'}; width:100%;">
 				<input type="text" name="key_{$acak}" id="key_{$acak}" style="width:30%;" placeholder="Cari Berdasarkan User">
 				<!--input type="text" name="group_{$acak}" id="group_{$acak}" style="width:30%;" placeholder="Cari Berdasarkan Group"-->
+				{*
 				<select name="group_{$acak}" id="group_{$acak}" style="width:30%;" >
 					<option value="" selected>-- Pilih --</option>
 					<option value="Layanan Umum">Layanan Umum</option>
@@ -17,6 +18,7 @@
 					<option value="HRD">HRD</option>
 					<option value="Finance">Finance</option>
 				</select>
+				*}
 				&nbsp;&nbsp;&nbsp;
 				<a href="javascript:void(0)" style='margin-top:-10px' class="l-btn l-btn-small l-btn-plain" group="" id="carina_{$acak}" >
 					<span class="l-btn-left l-btn-icon-left">
@@ -46,8 +48,9 @@
 						<label class="control-label" style="width:450px;">Group User : </label>
 						{foreach from=$group item=i name=x}
 						<div class="controls">
-							<label>
+							<label style="width:100%;">
 								<input name="cl_group_user_id"  id="cl_group_user_id_{$acak}" type="radio" value="{$i.id}" class="validasi cek group" checked />
+								&nbsp;
 								<span class="lbl" style="margin-left:6px;">{$i.group_user|default:'-'}</span>
 							</label>
 						</div>
@@ -61,8 +64,9 @@
 						<label class="control-label" style="width:450px;">Unit Kerja : </label>
 						{foreach from=$unit item=i name=x}
 						<div class="controls">
-							<label>
+							<label style="width:100%;">
 								<input name="cl_unit_kerja_id" id="cl_unit_kerja_id_{$acak}" type="radio" value="{$i.id}" class="validasi cek unit" checked />
+								&nbsp;
 								<span class="lbl" style="margin-left:6px;">{$i.nama_unit|default:'-'}</span>
 							</label>
 						</div>

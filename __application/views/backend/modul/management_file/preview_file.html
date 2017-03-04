@@ -12,6 +12,8 @@
 		var param = {};
 		$('#download_file').on('click', function(){
 			param['filenya'] = '{$filenya}';
+			param['id'] = '{$id}';
+			param['namafile'] = '{$namafile}';
 			openWindowWithPostRequest('{$host}backoffice-downloadfile', param);
 		});
 	</script>

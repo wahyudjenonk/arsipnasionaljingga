@@ -158,7 +158,18 @@ class Modelsx extends CI_Model{
 				//echo $sql;exit;
 			break;
 			case "tbl_log":
-				$sql="SELECT ROW_NUMBER() OVER (ORDER BY A.id ASC) as rowID,A.* FROM tbl_log A ".$where." ORDER BY A.create_date DESC ";
+				if($this->auth['cl_user_group_id'] != "1"){
+					$where .= " AND B.cl_unit_kerja_id = '".$this->auth['cl_unit_kerja_id']."' ";
+				}
+				
+				$sql="
+					SELECT ROW_NUMBER() OVER (ORDER BY A.id DESC) as rowID,
+						A.* 
+					FROM tbl_log A 
+					LEFT JOIN tbl_upload_file B ON B.id = A.data_id
+					".$where." 
+					ORDER BY A.create_date DESC 
+				";
 			break;
 			case "chart_file":
 				$sql="
@@ -569,6 +580,19 @@ class Modelsx extends CI_Model{
 			break;
 			
 			case "tbl_upload_file":				
+				if($sts_crud == 'add'){
+					$sqlceknodokumen = "
+						SELECT no_dokumen
+						FROM tbl_upload_file 
+						WHERE no_dokumen = '".$data["no_dokumen"]."'
+					";
+					$queryceknodokumen = $this->db->query($sqlceknodokumen)->row_array();
+					if($queryceknodokumen){
+						return 3;
+						exit;
+					}
+				}
+				
 				$target_path = "__repository/".$this->auth['cl_unit_kerja_id']."/";
 				if(!is_dir($target_path)) {
 					mkdir($target_path, 0777);         
@@ -612,7 +636,8 @@ class Modelsx extends CI_Model{
 						if($sts_crud == 'edit'){
 							unlink($target_path.$getdata['nama_file']);
 						}
-						$filebersih = $this->lib->clean(pathinfo($_FILES['filename']['name'], PATHINFO_FILENAME));
+						//$filebersih = $this->lib->clean(pathinfo($_FILES['filename']['name'], PATHINFO_FILENAME));
+						$filebersih = $this->lib->clean($data["no_dokumen"], "_");
 						$file_p = $namefilenya.strtoupper($filebersih);
 						$filename_p =  $this->lib->uploadnong($target_path, 'filename', $file_p); 
 						$data['nama_file'] = $filename_p;
@@ -621,11 +646,17 @@ class Modelsx extends CI_Model{
 				
 				if($sts_crud == 'edit' || $sts_crud == 'add'){
 					$data['cl_unit_kerja_id'] = $this->auth['cl_unit_kerja_id'];
-					$tgl = $data['jangka_waktu'];
-					$bagi = explode('-',$tgl);
-					$data['jangka_waktu_mulai'] = str_replace('/','-',$bagi[0]);
-					$data['jangka_waktu_akhir'] = str_replace('/','-',$bagi[1]);
-					$data['nilai_kontrak'] = str_replace('.','',$data['nilai_kontrak']);
+					if(isset($data['jangka_waktu'])){
+						$tgl = $data['jangka_waktu'];
+						$bagi = explode('-',$tgl);
+						$data['jangka_waktu_mulai'] = str_replace('/','-',$bagi[0]);
+						$data['jangka_waktu_akhir'] = str_replace('/','-',$bagi[1]);
+					}
+					
+					if(isset($data['nilai_kontrak'])){
+						$data['nilai_kontrak'] = str_replace('.','',$data['nilai_kontrak']);
+					}
+					
 					unset($data['jangka_waktu']);
 				}
 			break;

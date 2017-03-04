@@ -98,13 +98,21 @@ class Controllerx extends JINGGA_Controller {
 					$nama_file = $this->input->post('nama_file');					
 					
 					$this->nsmarty->assign("filenya", $target_path.$nama_file);
+					$this->nsmarty->assign("id", $this->input->post('idx'));
+					$this->nsmarty->assign("namafile", $this->input->post('nama_file'));					
 					$this->nsmarty->display("backend/modul/management_file/preview_file.html");
 					exit;
 				break;
 				case "preview_file_sharing":
-					$this->nsmarty->assign("tinggi_iframe", "540");
-					$this->nsmarty->assign("button_download", "false");
-					
+					$auth_sharing = $this->db->get_where("tbl_user_prev_group", array("cl_user_group_id"=>$this->auth["cl_user_group_id"], "tbl_menu_id"=>"2") )->row_array();
+					if($auth_sharing["download_file"] == 1){
+						$this->nsmarty->assign("tinggi_iframe", "519");
+						$this->nsmarty->assign("button_download", "true");
+					}else{
+						$this->nsmarty->assign("tinggi_iframe", "540");
+						$this->nsmarty->assign("button_download", "false");
+					}
+									
 					$getdata = $this->db->get_where('tbl_upload_file', array('id'=>$this->input->post('idx')) )->row_array();
 					//$nama_area = $this->db->get_where("cl_area", array("id"=>$getdata['cl_area_id']) )->row_array();
 					//$nama_folder = str_replace(" ", "_", strtolower($nama_area["nama_area"]) );
@@ -113,6 +121,8 @@ class Controllerx extends JINGGA_Controller {
 					$nama_file = $this->input->post('nama_file');					
 					
 					$this->nsmarty->assign("filenya", $target_path.$nama_file);
+					$this->nsmarty->assign("id", $this->input->post('idx'));
+					$this->nsmarty->assign("namafile", $this->input->post('nama_file'));
 					$this->nsmarty->display("backend/modul/management_file/preview_file.html");
 					exit;
 				break;
@@ -502,10 +512,19 @@ class Controllerx extends JINGGA_Controller {
 	function downloadfile(){
 		$this->load->helper('download');
 		$filenya = $this->input->post("filenya");
+		$log['aktivitas']="Download File Name <b>".$this->input->post("namafile")."</b> oleh ".$this->auth['nama_user'];
+		$log['data_id'] = $this->input->post("id");
+		$log['flag_tbl']="tbl_upload_file";
+		$log['create_date'] = date('Y-m-d H:i:s');
+		$log['create_by'] = $this->auth['nama_user'];
+		$this->db->insert('tbl_log', $log);
+		
 		force_download($filenya, NULL);
 	}
 	
 	function tester(){
-		print_r($this->auth);
+		//print_r($this->auth);
+		$filebersih = $this->lib->clean("ND/SOFT/DIV-IT/2017/0001", "_");
+		echo $filebersih;
 	}
 }

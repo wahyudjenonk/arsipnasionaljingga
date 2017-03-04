@@ -432,9 +432,9 @@ class Lib {
 	}
 	
 	//Class String Sanitizer
-	function clean($string) {
-		$string = str_replace(' ', '', $string); // Replaces all spaces with hyphens.
-		return preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+	function clean($string,$pengganti) {
+		$string = str_replace(' ', $pengganti, $string); // Replaces all spaces with hyphens.
+		return preg_replace('/[^A-Za-z0-9\-]/', $pengganti, $string); // Removes special chars.
 	}	
 	
 	function get_ldap_user($mod="",$user="",$pwd="",$group=""){
