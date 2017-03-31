@@ -619,5 +619,44 @@ class Lib {
 		
 		return $data;
 	}
-	
+	function jingga($url,$data,$method,$balikan){
+		$username = 'jingga_api';
+		$password = 'Plokiju_123';
+		$curl_handle = curl_init();
+		$agent = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.0.3705; .NET CLR 1.1.4322)';
+        curl_setopt($curl_handle, CURLOPT_USERAGENT, $agent);
+        curl_setopt($curl_handle, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($curl_handle, CURLOPT_MAXREDIRS, 20); 
+		curl_setopt($curl_handle, CURLOPT_URL, $url);
+		curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+		
+		if($method=='post'){
+			//curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array("Content-type: multipart/form-data"));
+			curl_setopt($curl_handle, CURLOPT_POST, 2);
+			curl_setopt($curl_handle, CURLOPT_POSTFIELDS, urldecode(http_build_query($data)));
+			
+		}
+		if($method=='put'){
+			curl_setopt($curl_handle, CURLOPT_CUSTOMREQUEST, "PUT");
+			curl_setopt($curl_handle, CURLOPT_POSTFIELDS,http_build_query($data));
+		}
+		if($method=='delete'){
+			curl_setopt($curl_handle, CURLOPT_CUSTOMREQUEST, "delete");
+			
+		}
+		//curl_setopt($curl_handle, CURLOPT_USERPWD, $username . ':' . $password);
+		 
+		$kirim = curl_exec($curl_handle);
+		curl_close($curl_handle);
+		if($balikan=='json'){
+			$result = json_decode($kirim, true);
+		}
+		else if($balikan=='xml'){
+			$result = json_decode($kirim, true);
+		}else{
+			$result=$kirim;
+		}
+		return $result;
+		
+	}
 }
