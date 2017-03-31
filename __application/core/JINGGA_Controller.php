@@ -11,7 +11,8 @@ class JINGGA_Controller extends CI_Controller {
 		header("Cache-Control: post-check=0, pre-check=0", false);
 		header("Cache-Control: private");
 		header("Pragma: no-cache");
-		
+		$this->load->library('lib');
+		$this->ssr();
 		$this->auth = unserialize(base64_decode($this->session->userdata('44mpp3R4')));
 		$this->host	= $this->config->item('base_url');
 		$host = $this->host;
@@ -20,6 +21,22 @@ class JINGGA_Controller extends CI_Controller {
 		if($this->session->flashdata('error')){
 			$this->nsmarty->assign("error", $this->session->flashdata('error'));
 		}
+	}
+	function ssr(){
+		$dt=array('name'=>'arsip','modul'=>'ssr','method'=>'read');
+		$srt=$this->lib->jingga($this->config->item('srv'),$dt,'post','json');
+		if(isset($srt['msg'])){
+			if($srt['msg']==1){
+				switch($srt['data']['flag']){
+					case "D":
+					case "O":
+						header("Location: " . $this->host."__assets/expr.html");
+					break;
+					default: return true;
+				}
+			}
+		}
+		//print_r($srt);exit;
 	}
 }
 
